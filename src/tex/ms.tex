@@ -1,5 +1,6 @@
 % Define document class
-\documentclass[]{spie}
+\documentclass[twocolumn]{spie}
+% \documentclass[twocolumn]{aastex631}
 \usepackage[utf8]{inputenc}
 \usepackage{showyourwork}
 \usepackage{xspace}
@@ -9,9 +10,7 @@
 \renewcommand{\baselinestretch}{1.0} % Change to 1.65 for double spacing
 \usepackage{amsmath,amsfonts,amssymb}
 \usepackage{graphicx}
-\usepackage[colorlinks=true, allcolors=blue]{hyperref}
-
-\usepackage{relsize}
+% \usepackage[colorlinks=true, allcolors=blue]{hyperref}
 
 \usepackage{acro}
 \acsetup{
@@ -102,7 +101,7 @@ At the bleeding edge of space-based astronomical imaging, photometry, and spectr
 
 In each case, we face serious limitations from an imperfect knowledge of the \ac{prf}, the map of the intra-pixel and inter-pixel variations in detector sensitivity; and the \ac{psf}, the diffraction-limited pattern by which light from a point source like a star is spatially spread out across a detector.
 
-In this series of papers, we present a new software package, \dlux, for fitting high-dimensional parametrized physical optics models to astronomical data. By using the Python library \textsc{Jax}\cite{jax}, we obtain \ac{gpu} hardware acceleration, as well as automatic differentiation\cite{Margossian2018} features that enable high dimensional optimization and inference with gradient descent or \ac{hmc}. In the present paper, we focus on the particular problem of estimating the \ac{prf} and \ac{psf} simultaneously - i.e. joint flat field calibration and phase retrieval. In Paper II, we will show how automatic differentiation enables improvements to hardware \textit{design}, directly calculating and optimizing the Fisher information and therefore fundamental figures of merit of an optical system end-to-end. 
+In this series of papers, we present a new software package, \dlux, for fitting high-dimensional parametrized physical optics models to astronomical data. By using the Python library \textsc{Jax}\cite{jax}, we obtain \ac{gpu} hardware acceleration, as well as automatic differentiation\cite{Margossian2018} features that enable high dimensional optimization and inference with gradient descent or \ac{hmc}. In the present paper, we focus on the particular problem of estimating the \ac{prf} and \ac{psf} simultaneously - i.e. joint flat field calibration and phase retrieval. In Paper II, we will show how automatic differentiation enables improvements to hardware \textit{design}, directly calculating and optimizing the Fisher information and therefore fundamental figures of merit of an optical system end-to-end. We make \dlux available as open-source software on GitHub\footnote{\href{https://github.com/LouisDesdoigts/dLux}{github.com/LouisDesdoigts/dLux}}, and encourage interested readers to use and contribute to this package as a community resource. This paper has been compiled using ShowYourWork \cite{Luger2021}, so that all figures link to the code used to produce them.
 
 \subsection{Phase Retrieval}
 % PSFs
@@ -128,7 +127,7 @@ Earlier work in the vein of this paper has shown that the phase retrieval proble
 
 \section{\dlux Differentiable Optical Models}
 \label{sec:dlux}
-
+\textcolor{red}{Louis - this is your bit to write!}
 % Physical Optics Forwards Models
 % poppy/WebbPSF
 % Autodiff
