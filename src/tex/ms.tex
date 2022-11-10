@@ -11,9 +11,7 @@
 \usepackage{amsmath,amsfonts,amssymb}
 \usepackage{graphicx}
 \usepackage[colorlinks=true, allcolors=blue]{hyperref}
-
 \usepackage{relsize}
-
 \usepackage{acro}
 \acsetup{
   single    = false,
@@ -118,6 +116,25 @@ Phase retrieval is the problem of inferring these aberrations from data\cite{sch
 Earlier work in the vein of this paper has shown that the phase retrieval problem can be efficiently solved by taking a forwards model of physical optics, obtaining partial derivatives with automatic differentiation, and optimizing its parameters by gradient descent \cite{jurling_fienup,phase_ret_and_design}.
 
 \subsection{Detector Calibration}
+
+High-precision, high-cadence time series of space photometry from \textit{Kepler} \cite{Borucki2010}, K2 \cite{K2}, TESS \cite{TESS} and CHEOPS \cite{CHEOPS} space telescopes have been revolutionary for exoplanetary science and stellar asr. This increased precision over that last 20 years has also revolutionized asteroseismology [cite multiple papers here], the study of stellar interiors. 
+
+
+% Photometry is hard because of flat field & optical aberrations
+In many practical cases, photometric precision is limited by systematic errors due to variations in sensitivity within and between pixels. Changes in telescope pointing or PSF couple to these inter- and intra-pixel variations in the flat field. This was particularly severe for the K2 mission where the breakdown of two reaction wheels in the original Kepler mission necessitated the telescope pointing be maintained with periodic thruster firings. This pointing instability introduced a saw-tooth systematic on 6 hour timescales, comparable to the timescales of exoplanet transits and asteroseismic signals of interest. Similarly, throughout one Earth orbit telescopes experience a changing thermal gradient across the optical train as one side faces the Sun, and the other deep space. Depending on the orbital height, this introduces periodic optical aberrations that distort the PSF over timescales of interest. The systematic coupling of these effects has given rise to many methods used to either de-correlate these signals or calibrate the systematics. 
+
+%  flat field calibration
+Much work has been put towards developing data-driven self-calibration of the flat field in K2, which are of general interest and applicability for other space photometry missions. 
+% 		- self-flat fielding (Andrew Vanderburg) 
+\citet{self_flat-fielding} developed the `self flat-fielding' approach that harnesses the correlation between causally-disconnected sources in order to isolate the noise processes of interest. First the thruster firings and pointing drift is calibrated by calculating the correlation between all stellar sources on the detector. Time-series photomtetric signals that correlate with source position are then used to isolate the signal introduced by pixel sensitivity variation and correct for it.
+%       - dun wang causal pixel model 
+Taking a similar approach \citet{causal_pixel} constrains instrumental effects by measuring correlations in the light curves of causally uncorrelated pixels.
+% 		- Christina Hedges (pixel cal papers) ??
+% 		- Luger papers (pixel-level decorrelation)
+In \citet{pixel_decorr} ... 
+% 		- halo photometry (white, pope)
+Other non-linear instrumental effects such as saturation can further complicate the recovery of precise light curves. Halo photometry \citep{halo, halo2} sidesteps the saturation problem by extracting light curves from the `halo' of scattered light around the saturated pixels. Instrumental and astrophysical effects are separated by assigning individual pixel weights and biases, which are optimised in order to maximise correlation the between pixel light-curves within the same halo, and minimise correlations between pixels light curves across different halos.
+
 % Pixel Sensitivities - Photometry
 % K2
 % K2SFF
