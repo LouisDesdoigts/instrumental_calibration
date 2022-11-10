@@ -1,57 +1,199 @@
 % Define document class
-\documentclass[twocolumn]{aastex631}
+\documentclass[]{spie}
+\usepackage[utf8]{inputenc}
 \usepackage{showyourwork}
+\usepackage{xspace}
+%\documentclass[a4paper]{spie}  %>>> use this instead for A4 paper
+%\documentclass[nocompress]{spie}  %>>> to avoid compression of citations
+
+\renewcommand{\baselinestretch}{1.0} % Change to 1.65 for double spacing
+\usepackage{amsmath,amsfonts,amssymb}
+\usepackage{graphicx}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+
+\usepackage{relsize}
+
+\usepackage{acro}
+\acsetup{
+  single    = false,
+  list/sort  = true,
+  cite/group = true,
+  cite/group/cmd = \cite,
+  cite/group/pre = {},
+}
+
+\DeclareAcronym{prf}{
+  short = PRF,
+  long = Pixel Response Function
+}
+
+\DeclareAcronym{psf}{
+  short = PSF,
+  long = Point Spread Function
+}
+
+\DeclareAcronym{gpu}{
+  short = GPU,
+  long = Graphics Processing Unit
+}
+
+\DeclareAcronym{hmc}{
+  short = HMC,
+  long = Hamiltonian Monte Carlo,
+  cite = {Betancourt2017}
+}
+
+\DeclareAcronym{mcmc}{
+  short = MCMC,
+  long = Markov Chain Monte Carlo,
+  cite = {Metropolis1953}
+}
+
+\DeclareAcronym{gp}{
+  short = GP,
+  long = Gaussian Process,
+  cite = {rasmussen:williams:2006}
+}
+
+\DeclareAcronym{snr}{
+  short = SNR,
+  long = signal-to-noise ratio
+}
+
+\newcommand\jax{\textsc{Jax}\xspace}
+\newcommand\dlux{$\partial$Lux\xspace}
+
+\title{Differentiable Optics with {\Large $\partial$}Lux: I - Deep Calibration of Flat Field and Phase with Automatic Differentiation}
+
+\author[a]{Louis C. Desdoigts}
+\author[b]{Benjamin J. S. Pope}
+\author[a]{Peter G. Tuthill}
+
+\affil[a]{Sydney Institute for Astronomy, School of Physics, University of Sydney, NSW~2006, Australia}
+\affil[b]{School of Mathematics and Physics, University of Queensland, St Lucia, QLD~4072, Australia}
+\affil[c]{Centre for Astrophysics, University of Southern Queensland, West Street, Toowoomba, QLD~4350, Australia}
 
 % Begin!
-\begin{document}
+\authorinfo{Further author information: (Send correspondence to L. C. D.)\\L. C. D.: E-mail: louis.desdoigts@sydney.edu.au}
+
+% Option to view page numbers
+\pagestyle{empty} % change to \pagestyle{plain} for page numbers   
+\setcounter{page}{301} % Set start page numbering at e.g. 301
+ 
+\begin{document} 
+\maketitle
 
 % Title
-\title{An open source scientific article}
 
 % Author list
-\author{@LouisDesdoigts}
+
 
 % Abstract with filler text
 \begin{abstract}
-    Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
-    Ut purus elit, vestibulum ut, placerat ac, adipiscing vitae, felis.
-    Curabitur dictum gravida mauris, consectetuer id, vulputate a, magna.
-    Donec vehicula augue eu neque, morbi tristique senectus et netus et.
-    Mauris ut leo, cras viverra metus rhoncus sem, nulla et lectus vestibulum.
-    Phasellus eu tellus sit amet tortor gravida placerat.
-    Integer sapien est, iaculis in, pretium quis, viverra ac, nunc.
-    Praesent eget sem vel leo ultrices bibendum.
-    Aenean faucibus, morbi dolor nulla, malesuada eu, pulvinar at, mollis ac.
-    Curabitur auctor semper nulla donec varius orci eget risus.
-    Duis nibh mi, congue eu, accumsan eleifend, sagittis quis, diam.
-    Duis eget orci sit amet orci dignissim rutrum.
+Stuff about \dlux
+
 \end{abstract}
 
-% Main body with filler text
 \section{Introduction}
 \label{sec:intro}
 
-Lorem ipsum dolor sit amet, consectetuer adipiscing elit.
-Ut purus elit, vestibulum ut, placerat ac, adipiscing vitae, felis.
-Curabitur dictum gravida mauris, consectetuer id, vulputate a, magna.
-Donec vehicula augue eu neque, morbi tristique senectus et netus et.
-Mauris ut leo, cras viverra metus rhoncus sem, nulla et lectus vestibulum.
-Phasellus eu tellus sit amet tortor gravida placerat.
-Integer sapien est, iaculis in, pretium quis, viverra ac, nunc.
-Praesent eget sem vel leo ultrices bibendum.
-Aenean faucibus, morbi dolor nulla, malesuada eu, pulvinar at, mollis ac.
-Curabitur auctor semper nulla donec varius orci eget risus.
-Duis nibh mi, congue eu, accumsan eleifend, sagittis quis, diam.
-Duis eget orci sit amet orci dignissim rutrum.
+% High precision astronomy is limited by systematics introduced by the optics and detector
+At the bleeding edge of space-based astronomical imaging, photometry, and spectroscopy, the precision is limited by systematics introduced by aberrations in the optics and noise processes in the detector. While problems are ubiquitous in astronomy, we are motivated by several core examples. In exoplanet direct imaging, we want to achieve high resolution and high contrast simultaneously with instruments like JWST Coronagraphy \cite{Girard2022}, Aperture Masking \cite{Sivaramakrishnan2022}, or Kernel Phase \cite{Kammerer2022} modes. The astrometric mission Toliman \cite{tuthill2018} aims to measure precise relative positions of the binary stars $\alpha$~Centauri~AB to reveal the gravitational influence of unseen planets; this will require micro-arcsecond, micro-pixel astrometric precision. We may also want to perform high precision photometry, whether with dedicated missions like \textit{Kepler} \cite{Borucki2010} and TESS \cite{Ricker2015}, or as ancillary science with Toliman. 
 
-Nam dui ligula, fringilla a, euismod sodales, sollici- tudin vel, wisi.
-Morbi auctor lorem non justo, nam lacus libero, pretium at, lobortis vitae.
-Donec aliquet, tortor sed accumsan bibendum, erat ligula aliquet magna.
-Morbi ac orci et nisl hendrerit mollis, suspendisse ut massa, cras nec ante.
-Pellentesque a nulla cum sociis natoque penatibus et magnis dis parturient.
-Aliquam tincidunt urna, nulla ullamcorper vestibulum turpis.
-Pellentesque cursus luctus mauris \citep{Luger2021}.
+In each case, we face serious limitations from an imperfect knowledge of the \ac{prf}, the map of the intra-pixel and inter-pixel variations in detector sensitivity; and the \ac{psf}, the diffraction-limited pattern by which light from a point source like a star is spatially spread out across a detector.
 
+% PSFs
+The \ac{psf} depends on the successive planes through which light passes from the entrance pupil of the telescope through to the detector. This can be calculated from physical optics: for a simple camera bringing light from the pupil to focus at a detector plane, the \ac{psf} is the Fourier transform of the input wavefront, the regime of Fraunhofer diffraction. In the more general Fresnel regime where the detector is slightly out of focus, there are additional quadratic phase factors before and after this Fourier transform. In more complicated instruments like coronagraphs, the light might pass through multiple re-imaged pupil and focal planes, being operated on in each. In either case, the trouble is that the \ac{psf} is distorted by unknown aberrations - distortions in the wavefront, which can be represented as a spatially-varying phase map across the optical plane. 
+
+% Phase Retrieval - G-S, Fienup, review papers, kernel phase
+
+% Pixel Sensitivities - Photometry
+% K2
+% K2SFF
+% K2SC
+% EVEREST
+% OWL/HALO
+% CPM
+% LSST
+% Pixel Sensitivities - Imaging
+% Euclid
+% JWST AMI 
+
+In this series of papers, we present a new software package, \dlux, for fitting high-dimensional parametrized physical models to astronomical data. By using the Python library \textsc{Jax}\cite{jax}, we obtain hardware acceleration on the \ac{gpu}, as well as automatic differentiation that enables high dimensional optimization and inference with gradient descent or \ac{hmc}. In the present paper, we focus on the particular problem of estimating the \ac{prf} and \ac{psf} simultaneously - i.e. joint flat field calibration and phase retrieval.
+
+
+\section{\dlux Differentiable Optical Models}
+\label{sec:dlux}
+
+% Physical Optics Forwards Models
+% poppy/WebbPSF
+% Autodiff
+% Review backprop/NNs
+% Jax, PyTorch, Julia
+% Autodiff Optics
+% WaveBlocks
+% Sitzmann etc
+% Liaudat
+% Morphine
+% Overview of Wong et al 2021
+% dLux
+% Equinox
+% Features
+% Example of how to set up a model from layers
+
+% Figure 1: (Hand-drawn?) Illustration of the Optical System & ∂Lux model layers
+
+
+\section{Phase Retrieval and Flat Field Estimation}
+\label{sec:phaseretrieval}
+% Describe simulation setup
+% Figure 2: OPD & Pupil in our test, PSF, Flat Field histogram
+
+% Describe gradient descent implementation & scheduling
+% Takes X time on Y machine with Z precision on params (numbers from ShowYourWork)
+
+% Figure showing results
+
+% Figure 3: Like final 2l figures of tutorial merged together: 
+% Top: loss function vs epoch
+% Middle: correlation plot of Zernikes (with residual below); PSF (true, recovered, residual)
+% Bottom: correlation plot of star fluxes (with residual below), correlation plot of sensitivities (with residual below), 2d residual map of pixels
+
+
+\section{Discussion}
+% Can this break down?
+% Nyquist?
+% Low photon SNR limit?
+% Dithering or N stars requirement
+
+\section{Conclusions \& Future Work}
+% Review outcomes
+% Useful for space photometry in crowded fields
+% Toliman Pleiades?
+% Useful for detector calibration & monitoring
+% JWST, Roman
+% Time series: regularize with GP?
+
+
+
+% \begin{figure}[ht!]
+%     \script{gen_optics.py}
+%     \begin{centering}
+%         \includegraphics[width=\linewidth]{figures/optics.pdf}
+%         \caption{
+%             The optics
+%         }
+%         \label{fig:optics}
+%     \end{centering}
+% \end{figure}
+
+\section{Acknowledgements}
+
+We acknowledge and pay respect to the Gadigal people of the Eora Nation, upon whose unceded, sovereign, ancestral lands the University of Sydney is built; and the traditional owners of the land on which the University of Queensland is situated, the Turrbal and Jagera people. We pay respects to their Ancestors and descendants, who continue cultural and spiritual connections to Country. 
+
+This research made use of \textsc{Numpy} \cite{numpy}; SciPy \cite{scipy}; Matplotlib \cite{matplotlib}; Astropy \cite{astropy:2013,astropy:2018}; \textsc{Jax} \cite{jax}; and \texttt{equinox} \cite{kidger2021equinox}.
+
+\bibliographystyle{spiebib} % makes bibtex use spiebib.bst
 \bibliography{bib}
 
 \end{document}
