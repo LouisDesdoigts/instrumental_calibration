@@ -102,6 +102,9 @@ At the bleeding edge of space-based astronomical imaging, photometry, and spectr
 
 In each case, we face serious limitations from an imperfect knowledge of the \ac{prf}, the map of the intra-pixel and inter-pixel variations in detector sensitivity; and the \ac{psf}, the diffraction-limited pattern by which light from a point source like a star is spatially spread out across a detector.
 
+In this series of papers, we present a new software package, \dlux, for fitting high-dimensional parametrized physical models to astronomical data. By using the Python library \textsc{Jax}\cite{jax}, we obtain hardware acceleration on the \ac{gpu}, as well as automatic differentiation that enables high dimensional optimization and inference with gradient descent or \ac{hmc}. In the present paper, we focus on the particular problem of estimating the \ac{prf} and \ac{psf} simultaneously - i.e. joint flat field calibration and phase retrieval.
+
+
 \subsection{Phase Retrieval}
 % PSFs
 The \ac{psf} depends on the successive planes through which light passes from the entrance pupil of the telescope through to the detector. This can be calculated from physical optics: for a simple camera bringing light from the pupil to focus at a detector plane, the \ac{psf} is the Fourier transform of the input wavefront, the regime of Fraunhofer diffraction. In the more general Fresnel regime where the detector is slightly out of focus, there are additional quadratic phase factors before and after this Fourier transform. In more complicated instruments like coronagraphs, the light might pass through multiple re-imaged pupil and focal planes, being operated on in each. In either case, the trouble is that the \ac{psf} is distorted by unknown aberrations - distortions in the wavefront, which can be represented as a spatially-varying phase map across the optical plane. 
@@ -122,8 +125,6 @@ Earlier work in the vein of this paper has shown that the phase retrieval proble
 % Pixel Sensitivities - Imaging
 % Euclid
 % JWST AMI 
-
-In this series of papers, we present a new software package, \dlux, for fitting high-dimensional parametrized physical models to astronomical data. By using the Python library \textsc{Jax}\cite{jax}, we obtain hardware acceleration on the \ac{gpu}, as well as automatic differentiation that enables high dimensional optimization and inference with gradient descent or \ac{hmc}. In the present paper, we focus on the particular problem of estimating the \ac{prf} and \ac{psf} simultaneously - i.e. joint flat field calibration and phase retrieval.
 
 
 \section{\dlux Differentiable Optical Models}
