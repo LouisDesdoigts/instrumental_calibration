@@ -10,7 +10,7 @@
 \renewcommand{\baselinestretch}{1.0} % Change to 1.65 for double spacing
 \usepackage{amsmath,amsfonts,amssymb}
 \usepackage{graphicx}
-% \usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
 \usepackage{hyperref}
 \usepackage{relsize}
 \usepackage{acro}
@@ -62,10 +62,11 @@
 
 
 
-\newcommand\jax{\textsc{Jax}\xspace}
+% \newcommand\jax{\textsc{Jax}\xspace}
 \newcommand\dlux{$\partial$Lux\xspace}
 
-\title{Differentiable Optics with {\Large $\partial$}Lux: I - Deep Calibration of Flat Field and Phase with Automatic Differentiation}
+% \title{Differentiable Optics with {\Large $\partial$}Lux: I - Deep Calibration of Flat Field and Phase with Automatic Differentiation}
+\title{Differentiable Optics with dLux: I - Deep Calibration of Flat Field and Phase with Automatic Differentiation}
 
 
 
@@ -118,7 +119,7 @@ Earlier work in the vein of this paper has shown that the phase retrieval proble
 
 \subsection{Detector Calibration}
 
-High-precision, high-cadence time series of space photometry from \textit{Kepler} \cite{Borucki2010}, K2 \cite{K2}, TESS \cite{TESS} and CHEOPS \cite{CHEOPS} space telescopes have been revolutionary for exoplanetary science and stellar astrophysics. 
+High-precision, high-cadence time series of space photometry from \textit{Kepler} \cite{Borucki2010}, K2 \cite{K2}, TESS \cite{TESS} and CHEOPS \cite{CHEOPS} space telescopes have been revolutionary for exoplanetary science \cite{Zhu2021} and stellar astrophysics \cite{Aerts21,Jackiewicz2021}. 
 
 % Photometry is hard because of flat field & optical aberrations
 In many practical cases, photometric precision is limited by systematic errors due to variations in sensitivity within and between pixels. Changes in telescope pointing or PSF couple to these inter- and intra-pixel variations in the flat field. This was particularly severe for the K2 mission where the breakdown of two reaction wheels in the original Kepler mission necessitated the telescope pointing be maintained with periodic thruster firings. This pointing instability introduced a saw-tooth systematic on 6 hour timescales, comparable to the timescales of exoplanet transits and asteroseismic signals of interest. Similarly, throughout one Earth orbit telescopes experience a changing thermal gradient across the optical train as one side faces the Sun, and the other deep space. Depending on the orbital height, this introduces periodic optical aberrations that distort the PSF over timescales of interest. The systematic coupling of these effects has given rise to many methods used to either de-correlate these signals or calibrate the systematics. 
@@ -126,7 +127,7 @@ In many practical cases, photometric precision is limited by systematic errors d
 %  flat field calibration
 Much work has been put towards developing data-driven self-calibration of the flat field in K2, which are of general interest and applicability for other space photometry missions. 
 % 		- self-flat fielding (Andrew Vanderburg) 
-\citet{self_flat-fielding} developed the `self flat-fielding' approach that harnesses the correlation between causally-disconnected sources in order to isolate the noise processes of interest. First the thruster firings and pointing drift is calibrated by calculating the correlation between all stellar sources on the detector. Time-series photomtetric signals that correlate with source position are then used to isolate the signal introduced by pixel sensitivity variation and correct for it.
+In  `self flat-fielding' (K2SFF\cite{self_flat-fielding}), the light curve is decorrelated against principal components of all light curves on the detector. Time-series photometric signals that correlate with source position are then used to isolate the signal introduced by pixel sensitivity variation and correct for it.
 %       - dun wang causal pixel model 
 Taking a similar approach \citet{causal_pixel} constrains instrumental effects by measuring correlations in the light curves of causally uncorrelated pixels.
 % 		- Christina Hedges (pixel cal papers) ??
