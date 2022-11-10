@@ -10,7 +10,7 @@
 \renewcommand{\baselinestretch}{1.0} % Change to 1.65 for double spacing
 \usepackage{amsmath,amsfonts,amssymb}
 \usepackage{graphicx}
-\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+% \usepackage[colorlinks=true, allcolors=blue]{hyperref}
 \usepackage{hyperref}
 \usepackage{relsize}
 \usepackage{acro}
@@ -127,14 +127,14 @@ In many practical cases, photometric precision is limited by systematic errors d
 %  flat field calibration
 Much work has been put towards developing data-driven self-calibration of the flat field in K2, which are of general interest and applicability for other space photometry missions. 
 % 		- self-flat fielding (Andrew Vanderburg) 
-In  `self flat-fielding' (K2SFF\cite{self_flat-fielding}), the light curve is decorrelated against principal components of all light curves on the detector. Time-series photometric signals that correlate with source position are then used to isolate the signal introduced by pixel sensitivity variation and correct for it.
+In  `self flat-fielding' (K2SFF\cite{self_flat-fielding}), the systematics are modelled with a spline regression of raw flux versus detector position, together with a linear combination of principal components of all light curves on the detector. 
 %       - dun wang causal pixel model 
-Taking a similar approach \citet{causal_pixel} constrains instrumental effects by measuring correlations in the light curves of causally uncorrelated pixels.
+The `Causal Pixel Model` \cite{causal_pixel} constrains instrumental effects by measuring correlations in the light curves of causally uncorrelated pixels.
 % 		- Christina Hedges (pixel cal papers) ??
 % 		- Luger papers (pixel-level decorrelation)
-In \citet{pixel_decorr} ... 
+In \cite{pixel_decorr} ... 
 % 		- halo photometry (white, pope)
-Other non-linear instrumental effects such as saturation can further complicate the recovery of precise light curves. Halo photometry \citep{halo, halo2} sidesteps the saturation problem by extracting light curves from the `halo' of scattered light around the saturated pixels. Instrumental and astrophysical effects are separated by assigning individual pixel weights and biases, which are optimised in order to maximise correlation the between pixel light-curves within the same halo, and minimise correlations between pixels light curves across different halos.
+Other non-linear instrumental effects such as saturation can further complicate the recovery of precise light curves. Halo photometry \cite{halo, halo2} sidesteps the saturation problem by extracting light curves from the `halo' of scattered light around the saturated pixels. Instrumental and astrophysical effects are separated by assigning individual pixel weights and biases, which are optimised in order to maximise correlation the between pixel light-curves within the same halo, and minimise correlations between pixels light curves across different halos.
 
 % Pixel Sensitivities - Photometry
 % K2
