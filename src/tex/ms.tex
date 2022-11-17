@@ -1,7 +1,8 @@
 % Define document class
 \documentclass[twocolumn]{spie}
+% \documentclass[]{spie}
 % \documentclass[twocolumn]{aastex631}
-% \usepackage[utf8]{inputenc}
+\usepackage[utf8]{inputenc}
 \usepackage{showyourwork}
 \usepackage{xspace}
 %\documentclass[a4paper]{spie}  %>>> use this instead for A4 paper
@@ -10,8 +11,8 @@
 \renewcommand{\baselinestretch}{1.0} % Change to 1.65 for double spacing
 \usepackage{amsmath,amsfonts,amssymb}
 \usepackage{graphicx}
-% \usepackage[colorlinks=true, allcolors=blue]{hyperref}
-\usepackage{hyperref}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+% \usepackage{hyperref}
 \usepackage{relsize}
 \usepackage{acro}
 \acsetup{
@@ -52,7 +53,7 @@
 \DeclareAcronym{gp}{
   short = GP,
   long = Gaussian Process,
-  cite = {rasmussen:williams:2006}
+  cite = {Rasmussen2005,Aigrain2022}
 }
 
 \DeclareAcronym{snr}{
@@ -60,13 +61,50 @@
   long = signal-to-noise ratio
 }
 
+\DeclareAcronym{pld}{
+  short = PLD,
+  long = Pixel Level Decorrelation,
+  cite = {everest}
+}
+
+\DeclareAcronym{k2sff}{
+  short = SFF,
+  long = Self Flat-Fielding,
+  cite = {self_flat-fielding}
+}
+
+\DeclareAcronym{cpm}{
+  short = CPM,
+  long = Causal Pixel Model,
+  cite = {causal_pixel}
+}
+
+\DeclareAcronym{api}{
+  short = API,
+  long = Application Programming Interface
+}
+
+\DeclareAcronym{jit}{
+  short = jit,
+  long = Just-In-Time
+}
+
+\DeclareAcronym{opd}{
+  short = OPD,
+  long = Optical Path Difference
+}
 
 
 \newcommand\jax{\textsc{Jax}\xspace}
 \newcommand\dlux{$\partial$Lux\xspace}
+\newcommand\equinox{\texttt{equinox}\xspace}
+\newcommand\optax{\texttt{optax}\xspace}
+\newcommand\numpyro{\texttt{numpyro}\xspace}
 
-\title{Differentiable Optics with {\Large $\partial$}Lux: I - Deep Calibration of Flat Field and Phase with Automatic Differentiation}
-% \title{Differentiable Optics with dLux: I - Deep Calibration of Flat Field and Phase with Automatic Differentiation}
+\newcommand\kepler{\textit{Kepler}\xspace}
+
+\title{Differentiable Optics with {\Large $\partial$}Lux: I - Deep Calibration of Flat Field and Phase with autodiff}
+% \title{Differentiable Optics with dLux: I - Deep Calibration of Flat Field and Phase with autodiff}
 
 
 
@@ -82,7 +120,7 @@
 \authorinfo{Send correspondence to L. C. D.: \\E-mail: \href{mailto:louis.desdoigts@sydney.edu.au}{louis.desdoigts@sydney.edu.au}}
 
 % Option to view page numbers
-\pagestyle{empty} % change to \pagestyle{plain} for page numbers   
+\pagestyle{plain} % change to \pagestyle{empty} for no page numbers   
 % \setcounter{page}{301} % Set start page numbering at e.g. 301
  
 \begin{document} 
@@ -95,7 +133,14 @@
 
 % Abstract with filler text
 \begin{abstract}
-Stuff about \dlux
+
+$\partial$Lux is a newly developed optical modelling framework deigned to harness the powerful mathematical tools underpinning machine learning and directly apply them to the field of optics. 
+Both neural networks and optical systems map input vectors to output vectors employing a series of intermediary linear transformations and non-linear matrix operations. 
+This isomorphism allows for optical models to be directly constructed within existing automatic differentiation (autodiff) libraries. 
+$\partial$Lux exploits this relationship harnessing autodiff libraries to create a naively end-to-end fully differentiable optical modelling framework. 
+This may precipitate a paradigm shift in the power and utility of these optical models, opening the possibility to entirely novel algorithms and approaches. 
+Astronomical optics is one field where notoriously challenging or intractable problems can be re-approached with new and simple techniques. 
+This manuscript explores how efficient high-dimensional gradient calculations enabled by autodiff can be harnessed using differentiable optical models in order to simultaneously recover uncalibrated astronomical, optical and instrumental parameters.
 
 \end{abstract}
 
@@ -103,11 +148,11 @@ Stuff about \dlux
 \label{sec:intro}
 
 % High precision astronomy is limited by systematics introduced by the optics and detector
-At the bleeding edge of space-based astronomical imaging, photometry, and spectroscopy, the precision is limited by systematics introduced by aberrations in the optics and noise processes in the detector. While problems are ubiquitous in astronomy, we are motivated by several core examples. In exoplanet direct imaging, we want to achieve high resolution and high contrast simultaneously with instruments like JWST Coronagraphy \cite{Girard2022}, Aperture Masking \cite{Sivaramakrishnan2022}, or Kernel Phase \cite{Kammerer2022} modes. The astrometric mission Toliman \cite{tuthill2018} aims to measure precise relative positions of the binary stars $\alpha$~Centauri~AB to reveal the gravitational influence of unseen planets; this will require micro-arcsecond, micro-pixel astrometric precision. We may also want to perform high precision photometry, whether with dedicated missions like \textit{Kepler} \cite{Borucki2010} and TESS \cite{Ricker2015}, or as ancillary science with Toliman. 
+At the bleeding edge of space-based astronomical imaging, photometry, and spectroscopy, the precision is limited by systematics introduced by aberrations in the optics and noise processes in the detector. While problems are ubiquitous in astronomy, we are motivated by several core examples. In exoplanet direct imaging, we want to achieve high resolution and high contrast simultaneously with instruments like JWST Coronagraphy \cite{Girard2022}, Aperture Masking \cite{Sivaramakrishnan2022}, or Kernel Phase \cite{Martinache2010,Kammerer2022} modes. The astrometric mission Toliman \cite{tuthill2018} aims to measure precise relative positions of the binary stars $\alpha$~Centauri~AB to reveal the gravitational influence of unseen planets; this will require micro-arcsecond, micro-pixel astrometric precision. We may also want to perform high precision photometry, whether with dedicated missions like \textit{Kepler} \cite{Borucki2010} and TESS \cite{Ricker2015}, or as ancillary science with Toliman. 
 
 In each case, we face serious limitations from an imperfect knowledge of the \ac{prf}, the map of the intra-pixel and inter-pixel variations in detector sensitivity; and the \ac{psf}, the diffraction-limited pattern by which light from a point source like a star is spatially spread out across a detector.
 
-In this series of papers, we present a new software package, \dlux, for fitting high-dimensional parametrized physical optics models to astronomical data. By using the Python library \textsc{Jax}\cite{jax}, we obtain \ac{gpu} hardware acceleration, as well as automatic differentiation\cite{Margossian2018} features that enable high dimensional optimization and inference with gradient descent or \ac{hmc}. In the present paper, we focus on the particular problem of estimating the \ac{prf} and \ac{psf} simultaneously - i.e. joint flat field calibration and phase retrieval. In Paper II, we will show how automatic differentiation enables improvements to hardware \textit{design}, directly calculating and optimizing the Fisher information and therefore fundamental figures of merit of an optical system end-to-end. We make \dlux available as open-source software on GitHub\footnote{\href{https://github.com/LouisDesdoigts/dLux}{github.com/LouisDesdoigts/dLux}}, and encourage interested readers to use and contribute to this package as a community resource. This paper has been compiled using ShowYourWork \cite{Luger2021}, so that all figures link to the code used to produce them.
+In this series of papers, we present a new software package, \dlux, for fitting high-dimensional parametrized physical optics models to astronomical data. By using the Python library \textsc{Jax}\cite{jax}, we obtain \ac{gpu} hardware acceleration, as well as autodiff\cite{Margossian2018} features that enable high-dimensional optimization and inference with gradient descent or \ac{hmc}. In the present paper, we focus on the particular problem of estimating the \ac{prf} and \ac{psf} simultaneously - i.e. joint flat field calibration and phase retrieval. In Paper II, we will show how autodiff enables improvements to hardware \textit{design}, directly calculating and optimizing the Fisher information and therefore fundamental figures of merit of an optical system end-to-end. We make \dlux available as open-source software on GitHub\footnote{\href{https://github.com/LouisDesdoigts/dLux}{github.com/LouisDesdoigts/dLux}}, and encourage interested readers to use and contribute to this package as a community resource. This paper has been compiled using ShowYourWork \cite{Luger2021}, so that all figures link to the code used to produce them.
 
 \subsection{Phase Retrieval}
 % PSFs
@@ -115,110 +160,192 @@ The \ac{psf} depends on the successive planes through which light passes from th
 
 % Phase Retrieval - G-S, Fienup, review papers, kernel phase
 Phase retrieval is the problem of inferring these aberrations from data\cite{schechtman2014}, which is in general ill-posed \cite{barnett2020}: because of the Hermitian symmetry of the Fourier transform, and because we measure \textit{intensity} and not electric field in optical astronomy, there is a large space of aberrations that would generate the same intensity \ac{psf}. Fortunately, this space can be restricted to physically-realistic solutions and readily solved by algorithms such as the Gerchberg-Saxton algorithm \cite{gerchberg1972}, using ideas from compressed sensing \cite{candes2011}, or by machine learning \cite{metzler2018,isil2019,nishizaki2020}.  Phase retrieval was memorably performed to infer and correct the serious aberration on the \textit{Hubble Space Telescope} mirror at launch \cite{hubble_phase_ret}. 
-Earlier work in the vein of this paper has shown that the phase retrieval problem can be efficiently solved by taking a forwards model of physical optics, obtaining partial derivatives with automatic differentiation, and optimizing its parameters by gradient descent \cite{jurling_fienup,phase_ret_and_design}.
+Earlier work in the vein of this paper has shown that the phase retrieval problem can be efficiently solved by taking a forwards model of physical optics, obtaining partial derivatives with autodiff, and optimizing its parameters by gradient descent \cite{jurling_fienup,phase_ret_and_design}.
 
 \subsection{Detector Calibration}
 
 High-precision, high-cadence time series of space photometry from \textit{Kepler} \cite{Borucki2010}, K2 \cite{K2}, TESS \cite{TESS} and CHEOPS \cite{CHEOPS} space telescopes have been revolutionary for exoplanetary science \cite{Zhu2021} and stellar astrophysics \cite{Aerts21,Jackiewicz2021}. 
 
 % Photometry is hard because of flat field & optical aberrations
-In many practical cases, photometric precision is limited by systematic errors due to variations in sensitivity within and between pixels. Changes in telescope pointing or PSF couple to these inter- and intra-pixel variations in the flat field. This was particularly severe for the K2 mission where the breakdown of two reaction wheels in the original Kepler mission necessitated the telescope pointing be maintained with periodic thruster firings. This pointing instability introduced a saw-tooth systematic on 6 hour timescales, comparable to the timescales of exoplanet transits and asteroseismic signals of interest. Similarly, throughout one Earth orbit telescopes experience a changing thermal gradient across the optical train as one side faces the Sun, and the other deep space. Depending on the orbital height, this introduces periodic optical aberrations that distort the PSF over timescales of interest. The systematic coupling of these effects has given rise to many methods used to either de-correlate these signals or calibrate the systematics. 
+In many practical cases, photometric precision is limited by systematic errors due to variations in sensitivity within and between pixels. Changes in telescope pointing or variations in the \ac{psf} with focus couple to these inter- and intra-pixel variations in the flat field to produce changes in overall measured flux. This was particularly severe for the K2 mission where periodic thruster firings introduced a saw-tooth systematic on 6 hour timescales, comparable to the timescales of exoplanet transits and asteroseismic signals of interest. 
 
 %  flat field calibration
 Much work has been put towards developing data-driven self-calibration of the flat field in K2, which are of general interest and applicability for other space photometry missions. 
 % 		- self-flat fielding (Andrew Vanderburg) 
-In  `self flat-fielding' (K2SFF\cite{self_flat-fielding}), the systematics are modelled with a spline regression of raw flux versus detector position, together with a linear combination of principal components of all light curves on the detector. 
+In \ac{k2sff}, the systematics are modelled with a spline regression of raw flux versus detector position, together with a linear combination of principal components of all light curves on the detector, and \textsc{k2sc} \cite{Aigrain2016} uses a \ac{gp} similarly. 
 %       - dun wang causal pixel model 
-The `Causal Pixel Model` \cite{causal_pixel} constrains instrumental effects by measuring correlations in the light curves of causally uncorrelated pixels.
+The \ac{cpm} constrains instrumental effects by measuring correlations in the light curves of spatially distant, causally-disconnected pixels.
 % 		- Christina Hedges (pixel cal papers) ??
 % 		- Luger papers (pixel-level decorrelation)
-In \cite{pixel_decorr} ... 
+In \ac{pld} the light curve is detrended by a linear combination of regressors formed by the ensemble of normalized pixel time series contributing to the light curve, together with their higher-order products.
 % 		- halo photometry (white, pope)
-Other non-linear instrumental effects such as saturation can further complicate the recovery of precise light curves. Halo photometry \cite{halo, halo2} sidesteps the saturation problem by extracting light curves from the `halo' of scattered light around the saturated pixels. Instrumental and astrophysical effects are separated by assigning individual pixel weights and biases, which are optimised in order to maximise correlation the between pixel light-curves within the same halo, and minimise correlations between pixels light curves across different halos.
+Halo photometry \cite{halo, halo2} extracts light curves from a weighted sum of pixels where the weights are learned by minimizing the total variation of the resulting light curve, a convex optimization which is tractable because of autodiff.
 
-% Pixel Sensitivities - Photometry
-% K2
-% K2SFF
-% K2SC
-% EVEREST
-% OWL/HALO
-% CPM
-% LSST
 % Pixel Sensitivities - Imaging
-% Euclid
-% JWST AMI 
-
+Accurate measurement of background noise is also a serious issue for imaging science, where for example bad pixels, background noise, and uncertainties in the detector systematics limit sensitivity of aperture masking interferometry and kernel phase \cite{Kammerer2019}, and for low-surface-brightness science such as with \textit{Euclid}\cite{EuclidCollaboration2022}. In each case it is normal for detectors to be rigorously calibrated on the ground before flight, and with dedicated observations in space; but at the levels of contrast and resolution required for aperture masking on JWST (ideally $10^{-4}$ at a few $\lambda/D$) even small residual miscalibrations can seriously affect performance \cite{Sivaramakrishnan2022} and we require some method of self-calibration from science data themselves.
 
 \section{\dlux Differentiable Optical Models}
 \label{sec:dlux}
-\textcolor{red}{Louis - this is your bit to write!}
+
 % Physical Optics Forwards Models
+Rather than working with reduced data products like visibilities and light curves, an alternative is to directly model the pixel-level images with a parametrized model of the optics and detector. 
 % poppy/WebbPSF
+For example, the popular package \textsc{poppy} \cite{poppy} can accurately simulate Fresnel and Fraunhofer propagation, with a WebbPSF extension for preset JWST instrument models \cite{Perrin2014}. 
 % Autodiff
+In principle, it is possible to fit such a model to data with \ac{mcmc}, fitting the positions of stars and a modal basis representation of aberrations; but common samplers can be very slow, or fail to converge in high dimensions \cite{Huijser2022}. This restraint is lifted by using \ac{hmc}, which requires computation of the gradient of the log-likelihood with respect to parameters. 
+
 % Review backprop/NNs
-% Jax, PyTorch, Julia
+The core technology that enables this for physics also underpins the last decade's revolution in deep learning \cite{lecun15}: autodiff. By application of the chain rule, it is possible to calculate the partial derivatives of almost arbitrary numerical functions with respect to their floating-point arguments, so long as they are executed in an appropriate software framework. 
+% Theano, TensorFlow, PyTorch, Julia, Jax
+Considerable private-sector and open-source investment has gone into building autodiff frameworks to enable machine learning, such as Theano \cite{theano}, TensorFlow \cite{tensorflow2015}, PyTorch \cite{pytorch}, native support in the Julia language \cite{julia}, and the framework we apply in this paper, \textsc{Jax} \cite{jax}. \jax has an \ac{api} mirroring the common Python array library \textsc{NumPy} \cite{numpy}, while supporting \ac{gpu} acceleration, \ac{jit} compilation, and autodiff.
+
+In this paper we introduce a new optical simulation package, \dlux, available under an open-source BSD 3 license. It significantly extends the capabilities of \texttt{morphine} \cite{pope2021,phase_ret_and_design}, a previous \jax optics package from our team based on \texttt{poppy}, by taking full advantage of more-recent \jax features and libraries.  It is built in an object-oriented \jax framework \equinox \cite{kidger2021equinox}, with an optical system consisting of an \equinox module wrapping a stack of `layers' which are themselves \equinox layers applying phase or amplitude screens, or performing Fourier or Fresnel transforms on a wavefront. We use the optimization library \optax \cite{optax2020github} for gradient-descent optimization, and the probabilistic programming library \numpyro \cite{Phan2019} for \ac{hmc}.
+
+
+
 % Autodiff Optics
+There are several other frameworks for automatically-differentiable optics simulation:
 % WaveBlocks
+the most similar is WaveBlocks \cite{page2020}, a PyTorch package for object-oriented modelling of fluorescence microscopy. 
 % Sitzmann etc
+The DeepOptics package \cite{sitzmann2018} has been developed in TensorFlow for camera design and computational imaging, and
 % Liaudat
-% Morphine
-% Overview of Wong et al 2021
-% dLux
-% Equinox
-% Features
-% Example of how to set up a model from layers
-
-% Figure 1: (Hand-drawn?) Illustration of the Optical System & ∂Lux model layers
+WaveDiff in TensorFlow has been used for detector calibration \cite{liaudat2021} and \ac{psf} modelling \cite{Liaudat2022}. 
+We believe that \dlux fills a unique role in this ecosystem as the only fully-generalised modelling framework for physical optics. This has driven a design focus on flexibility and ease of open-source contribution and development. The goal is to provide a general object-oriented framework that enables all those working within optics to harness the advantages of autodiff and hardware acceleration provided by \jax with its user-friendly Numpy-like API.
 
 
-\section{Phase Retrieval and Flat Field Estimation}
-\label{sec:phaseretrieval}
+% We believe that integration with \jax, a language of rapidly emerging popularity in physics, makes \dlux a credible alternative to any of these in the context of astronomical imaging.
+
+
+
+
+\section{Optical and Instrumental Modelling}
+\label{sec:simulation}
+
+\begin{figure*}
+    \centering
+    \includegraphics[width=\textwidth]{figs/optics.pdf}
+    \caption{Summary of the optical configuration. Left panel: The top plot show the \ac{opd} of the pupil at the aperture of the telescope. The binary values create a half-wave step at the mean observation wavelength. The bottom plot shows the resulting large single-star \ac{psf} without aberrations applied. Middle panel: The top plot shows the total \ac{opd} of the pupil with the optical aberrations applied using low-order Zernike polynomials that is used to generate the data. The bottom plot shows the resulting single-star \ac{psf} with the aberrations applied. Clearly these aberrations have a large effect on the \ac{psf} and would make recovering information very difficult without appropriate calibration. Right panel: The top plot shows the histogram of the PRF that is applied in the focal plane. These values have a large spread and would greatly affect any results without calibration. The bottom plot shows the full PRF across the whole detector, with a small zoomed region used to show the fine detail that can not be seen when examining the full detector.}
+    \label{fig:optics}
+\end{figure*}
+
+
 % Describe simulation setup
-% Figure 2: OPD & Pupil in our test, PSF, Flat Field histogram
+% Figure 1: OPD & Pupil in our test, PSF, Flat Field histogram
+Within the $\partial$Lux framework we explicitly define each operation applied to the wavefront as a unique layer. Here we employ a simple optical model with only a pupil and focal plane, defined by 6 sequential layers.
+
+\begin{enumerate}
+    \item Wavefront initialisation
+    \item Application of the pupil-support
+    \item Normalisation of the wavefront
+    \item Application of the pupil phase mask
+    \item Application of the optical-aberrations
+    \item Propagation to the focal plane
+\end{enumerate}
+
+The first three layers simply modify the amplitude of the wavefront, representing its response to the opaque components of the optics. 
+
+Next the wavefront encounters the binary phase plate diffractive pupil from Toliman \cite{tuthill2018}, with a half-wave total \ac{opd} between the binary regions. We use this as an information-preserving way to spread the \ac{psf} across a large number of pixels which encodes the PRF information for a large number of pixels simultaneously. Other conventional methods such as defocusing or using a diffuser \cite{Stefansson2017} can be employed but result in a larger degradation in the information carried by the \ac{psf} and therefore result in all round worse performance. An important consideration which is alleviated by the Toliman pupil is that focal-plane wavefront sensing suffers a sign ambiguity for all phase modes that are inversion-symmetric about the origin, and for unambiguous phase retrieval we therefore need an asymmetric or odd-mode symmetric pupil \cite{Martinache2013}. This pupil and corresponding aberrated \ac{psf} are shown in the left panel of Figure \ref{fig:optics}.
+
+The wavefront then encounters low-order phase errors parameterised by coefficients on Zernike polynomials. We include the first 4 radial terms, ignoring global piston, tip and tilt for a total of 7 terms. Coefficients were randomly drawn from a normal distribution of mean 0 and standard deviation 20nm, for a total of \textcolor{red}{showyourwork variance} nm RMS total \ac{opd}. These aberrations applied to the pupil mask and resulting \ac{psf} are shown in the middle panel of Figure~\ref{fig:optics}. As can be seen from the \ac{psf} this is a large amount of optical distortion.
+
+This is then propagated to the 1024x1024 pixel focal plane by a two-sided matrix Fourier transform \cite{Soummer2007,Martinache2020}. The detector PRF is modelled by multiplying the resulting \ac{psf} by a pixel sensitivity map which is drawn from a normal distribution with mean 0 and standard deviation 0.05. The histogram of pixel sensitivities and total pixel sensitivity map is shown in the right panel of Figure~\ref{fig:optics}.
+
+This operation is then performed over 20 stars with a uniform 100nm bandpass spectra sampled at three wavelengths. This set of stars is then imaged four times with telescope pointing dithers applied between each image. This is done to break the natural degeneracy of stellar fluxes and pixel sensitivities. This final model complexity requires the calculations of 240 individual \ac{psf}s over a 1024x1024 detector, which takes a total of \textcolor{red}{showyourwork variable} seconds to evaluate on an Apple M1 CPU. The data set is generated by taking this set of images and applying Poissonian noise to the \ac{psf}s and additive Gaussian noise to every pixel as detector read-noise. Using this set of images we recover stellar positions and fluxes, optical aberrations, and individual pixel sensitivities. This gives us 40 stellar positional parameters (20 RA and DEC each), 20 stellar flux parameters, 7 optical aberration parameters, and 1'048'576 detector parameters. The dimensionality is vastly dominated by the \ac{prf}.
+
+
+
+\section{Results: Phase Retrieval and Flat Field Estimation}
+\label{sec:phaseretrieval}
+
+% Figure 2: Like final 2l figures of tutorial merged together: 
+% Top: loss function vs epoch
+% Middle: correlation plot of Zernikes (with residual below); PSF (true, recovered, residual)
+
+% Bottom: correlation plot of star fluxes (with residual below), correlation plot of sensitivities (with residual below), 2d residual map of pixels
+
+\begin{figure*}
+    \centering
+    \includegraphics[width=\textwidth]{figs/data_resid.pdf}
+    \caption{The left panel shows a single image of the full four that is used to create the full data set. This image has had both photon and detecotor noise applied. By eye it is clearly difficult to detangle the astrophysical information. The large number of overlapping \ac{psf}s is chosen in order to spread light across the majority of the detector so that we encode the PRF information for as much of the detector as possible. The middle panel shows the residual of this single image from the data and the initial uncalibrated model. Clearly these residuals are large, showing that there is a large amount of calibration required. The right panel shows this same residual after the model has been optimised. The residual values are much smaller and at the noise floor. A small zoomed region is shown so that the individual pixel-level residuals can be seen.}
+    \label{fig:data_residual}
+\end{figure*}
+
+
+
+
+To recover these parameters we initialise a naive unaberrated optical model with a uniform \ac{prf}. Stellar positions and fluxes are similarly perturbed from their true values. We will use this model to recover the true values. Figure~\ref{fig:data_residual} shows the resultant a sample residual of this model with the data. 
 
 % Describe gradient descent implementation & scheduling
 % Takes X time on Y machine with Z precision on params (numbers from ShowYourWork)
+In order to recover these input aberrations, we perform gradient descent using Adam \cite{Kingma2014} as implemented in \optax \cite{optax2020github}, minimizing the Poisson log-likelihood with respect to the position and flux of all stars, the response in all pixels, and the Zernike coefficients. We also use a staged optimisation strategy, initially optimising the positions, fluxes and optical aberrations in order to recover the correct \ac{psf} model before learning the \ac{prf}. This is necessary to circumvent the high degree of covariance that each individual pixel experiences with the parameters of the \ac{psf}. To achieve this the learning rate of the \ac{prf} is set to zero for the first 100 epochs of optimisation.
 
-% Figure showing results
+\textcolor{green}{Only by employing gradient evaluations using autodiff makes this problem computationally tractable. In comparison to the standard finite-differencing gradient evaluation algorithms with a complexity that scales linearly with the number of parameters, a problem of this dimensionality would take of order a million times longer to compute, which would remain impossible regardless of the hardware, let alone laptop CPU. The optimisation is performed for a total of 200 epochs, with each gradient calculation taking \textcolor{red}{showyourwork variable} seconds to evaluate on an Apple M1 Max CPU, leading to total optimisation time of \textcolor{red}{showyourwork variable} minutes.}
 
-% Figure 3: Like final 2l figures of tutorial merged together: 
-% Top: loss function vs epoch
-% Middle: correlation plot of Zernikes (with residual below); PSF (true, recovered, residual)
-% Bottom: correlation plot of star fluxes (with residual below), correlation plot of sensitivities (with residual below), 2d residual map of pixels
+\textcolor{green}{The optical propagation algorithm employs matrix Fourier transforms which uses a matrix multiplication to model the propagation between conjugate pupil-focal planes, and so can be greatly improved if deployed onto GPU hardware. Similarly as a test case, we initialise from a very naive state far from the truth, requiring a larger number of optimisation epochs than would be required in a real-world example. Furthermore as a calibration algorithm across a whole detector as an example the complexity of the model is greatly increased, applying this to real data would likely be focused on small detector regions resulting in less computationally intensive models.}
 
+\textcolor{green}{Should this green text be moved to discussion?}
+
+This optimisation strategy performs well, with all of the parameters being recovered down to the noise level. This can be seen in Figure~\ref{fig:data_residual} with the right panel showing a sample residual of the data and model after optimisation, which is clearly only noise. Correlations and residual plots of the positions and fluxes after the optimisation are shown in Figure~\ref{fig:astro_params}, and as expected from the residuals all of these parameters are well recovered and tightly constrained around their true values. Figure~\ref{fig:aberrations} shows the recovery of the optical aberrations, with a final residual aberration of \textcolor{red}{showyourwork variable} nm RMS. Finally, Figure~\ref{fig:flat_field} shows a correlation plot of the true and recovered sensitivity values and the corresponding residual histogram. The points of the correlation plot are colored-coded with the total counts for each pixel, showing as expected that pixels with higher photon counts having a better recovery of the PRF since these pixels have a greater \ac{snr}. Overall the parameters are very well recovered down to the noise level.
+
+
+\begin{figure*}
+    \centering
+    \includegraphics[width=0.8\textwidth]{figs/astro_params.pdf}
+    \caption{The left panel shows the recovery of the individual RA-Dec positions of each star, with the top section showing the correlation between the true and recovered values in units of arcseconds. The bottom section shows the individual residuals for each. Clearly these parameters have been well recovered through the optimisation. The right panel shows the recovery of the flux parameters in units of photons. The top section shows the correlation between the true and recovered values, and the bottom showing the resulting residuals. \textcolor{red}{Should we address the slight overestimation of fluxes due to the PRF values being a relative measure so a small global covaraince is present?}}
+    \label{fig:astro_params}
+\end{figure*}
+
+\begin{figure*}
+    \centering
+    \includegraphics[width=\textwidth]{figs/aberrations.pdf}
+    \caption{This figure shows the recovery of the optical aberrations after optimisation. The left panel shows the amplitudes of the Zernike polynomial coefficients, with the top section showing the correlation plot of the true and recovered values, and the bottom showing the individual residuals. The middle and right panels show the the true total \ac{opd} and the residuals generated by these values respectively.}
+    \label{fig:aberrations}
+\end{figure*}
+
+\begin{figure*}
+    \centering
+    \includegraphics[width=0.8\textwidth]{figs/ff.pdf}
+    \caption{This figure shows the PRF values after optimisation. The left panel shows the correlation between the pixel-level true and recovered values. Each ploint is color-coded with the total flux incident to each pixel, ie its \ac{snr}. The pixels with a greater signal are recovered better as expected. The right panel shows the histogram of these residuals, with the majority of values being very well recovered and small symmetric about a residual of zero.}
+    \label{fig:flat_field}
+\end{figure*}
 
 \section{Discussion}
-% Can this break down?
+
+This algorithm demonstrates promising performance applied to complex high-dimensional optimisation problems as shown in Section~\ref{sec:phaseretrieval}. However, this method does have its limitations. The use of a forwards model clearly requires a good match between the true and model \ac{psf}. The benefit of using differentiable optical models however is that it provides the perfect platform upon which to directly learn this model from the data, with the ability to scale the complexity as required for each problem. Similarly since we are working with direct image data as opposed to reduced data-products is that miss-calibrations of the system are simple to diagnose through direct examination of the residuals of the data and model.
+
+There are also clear limits in which these methods will begin to fail, such as the low \ac{snr} regime. Without the ability to recover the \ac{psf} model accurately, pixel level information will be dominated by the noise processes and the PRF will not be sufficiently encoded. This can be directly seen in Figure~\ref{fig:flat_field}, with the PRF residual having greater variance in for low-flux pixels. This however has a simple solution of observing brighter targets for calibration purposes or observing chosen targets for longer, until a sufficient amount of information is encoded into the data.
+
+It might also seem limited without a dense region of stars to observe as we can not learn about the pixel-level effects in regions with no signal, however we only care about the regions of the detector that have photons landing in them as these are the only ones that will be affected by miss-calibrations in detector level effects.
+
 % Nyquist?
 % Low photon SNR limit?
 % Dithering or N stars requirement
 
 \section{Conclusions \& Future Work}
 % Review outcomes
+In this first paper of a planned series, we have demonstrated photometry, phase retrieval, and detector calibration using autodiff to make tractable gradient descent in very high dimensions. Our software \dlux integrates with a rich and user-friendly ecosystem of \jax packages for optimization and sampling, which point to a number of natural extensions.
+
+% Time series: regularize with GP?
+The most obvious is to produce calibrated photometric time series, making use of correlations in time rather than the `bag of images' approach taken in this work. Instead of independently optimizing each frame, they could be treated hierarchically, with regularization imposed on each star's light curve. \ac{gp} models are widely used in astronomy, and \jax packages such as \texttt{tinygp} \cite{Aigrain2022} and GPJax \cite{Pinder2022} permit differentiable optimization and sampling that integrate efficiently with \dlux. 
+
 % Useful for space photometry in crowded fields
 % Toliman Pleiades?
-% Useful for detector calibration & monitoring
+Photometry of crowded fields is often of poor quality even from space telescopes, and there has been considerable investment in algorithms for deblending light curves in the K2 galactic plane campaigns \cite{Zhu2017} and in TESS with its large pixels \cite{Nardiello2019,Hedges2021,Higgins2022}. High dimensional optimization with autodiff in principle renders deblending tractable even close to the diffraction limit with unknown \ac{psf}s. Prior knowledge of a structured \ac{psf}, such as with the diffractive pupil architecture of Toliman \cite{Guyon2012,Guyon2013}, may further improve this deblending and retrieval. 
+
 % JWST, Roman
-% Time series: regularize with GP?
+High contrast imaging with the recently-launched JWST \cite{Gardner2006} and the upcoming Roman Space Telescope coronagraph \cite{Zellem2022} will in each case demand a new generation of data-driven \ac{psf} and detector calibrations beyond those used fruitfully on ground-based data \cite{Cantalloube2021}. While we have not attempted this in the present work, \dlux can flexibly model aberrations in the multiple intermediate planes of these coronagraphs, and in future work we intend to assess the practical and fundamental limits of multiplane phase retrieval and calibration to improve coronagraphic modelling.
+% Useful for detector calibration & monitoring
+Uncertainties in the flat field are also the leading contributor to noise in the exoplanet transmission spectroscopy with JWST \cite{Rustamkulov2022}, and a promising future direction with \dlux will be to build models not just of imaging data, but of spectrophotometry.
 
+In Paper II in this series, we will tackle the ismorphic problem of hardware design. While we have tackled phase design in previous work \cite{phase_ret_and_design}, autodiff permits calculation and optimization of the Fisher information directly \cite{Coe2009}, which means we can optimize towards the fundamental limits of parameter sensitivity. In subsequent papers, we intend to explore parametric and nonparametric deconvolution of images at high angular resolution and contrast.
 
-
-% \begin{figure}[ht!]
-%     \script{gen_optics.py}
-%     \begin{centering}
-%         \includegraphics[width=\linewidth]{figures/optics.pdf}
-%         \caption{
-%             The optics
-%         }
-%         \label{fig:optics}
-%     \end{centering}
-% \end{figure}
 
 \section{Acknowledgements}
 
 We acknowledge and pay respect to the Gadigal people of the Eora Nation, upon whose unceded, sovereign, ancestral lands the University of Sydney is built; and the traditional owners of the land on which the University of Queensland is situated, the Turrbal and Jagera people. We pay respects to their Ancestors and descendants, who continue cultural and spiritual connections to Country. 
 
-This research made use of \textsc{Numpy} \cite{numpy}; SciPy \cite{scipy}; Matplotlib \cite{matplotlib}; Astropy \cite{astropy:2013,astropy:2018}; \textsc{Jax} \cite{jax}; and \texttt{equinox} \cite{kidger2021equinox}.
+This research made use of \textsc{NumPy} \cite{numpy}; Matplotlib \cite{matplotlib}; \textsc{Jax} \cite{jax}; \texttt{equinox} \cite{kidger2021equinox}; and \optax \cite{optax2020github}.
 
 \bibliographystyle{spiebib} % makes bibtex use spiebib.bst
 \bibliography{bib}
