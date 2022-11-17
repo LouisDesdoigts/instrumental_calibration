@@ -1,5 +1,6 @@
 % Define document class
-\documentclass[twocolumn]{spie}
+% \documentclass[twocolumn]{spie}
+\documentclass[]{spieman}
 % \documentclass[]{spie}
 % \documentclass[twocolumn]{aastex631}
 \usepackage[utf8]{inputenc}
@@ -13,7 +14,7 @@
 \usepackage{graphicx}
 \usepackage{relsize}
 \usepackage{acro}
-
+% \usepackage{authblk}
 \usepackage[colorlinks=true, allcolors=blue]{hyperref}
 
 \acsetup{
@@ -108,17 +109,20 @@
 % \title{Differentiable Optics with dLux: I - Deep Calibration of Flat Field and Phase with autodiff}
 
 
+\author[a,*]{Louis Desdoigts}
+\author[b]{Benjamin J. S. Pope}
+\author[a]{Peter G. Tuthill}
 
 \affil[a]{Sydney Institute for Astronomy, School of Physics, University of Sydney, NSW~2006, Australia}
 \affil[b]{School of Mathematics and Physics, University of Queensland, St Lucia, QLD~4072, Australia}
 \affil[c]{Centre for Astrophysics, University of Southern Queensland, West Street, Toowoomba, QLD~4350, Australia}
 
-\author[a]{Louis C. Desdoigts}
-\author[b]{Benjamin J. S. Pope}
-\author[a]{Peter G. Tuthill}
+
 
 % Begin!
-\authorinfo{Send correspondence to L. C. D.: \\E-mail: \href{mailto:louis.desdoigts@sydney.edu.au}{louis.desdoigts@sydney.edu.au}}
+% \authorinfo{Send correspondence to L. C. D.: \\E-mail: \href{mailto:louis.desdoigts@sydney.edu.au}{louis.desdoigts@sydney.edu.au}}
+
+
 
 % Option to view page numbers
 \pagestyle{plain} % change to \pagestyle{empty} for no page numbers   
@@ -126,6 +130,9 @@
  
 \begin{document} 
 \maketitle
+
+% Include email contact information for corresponding author
+{\noindent \footnotesize\textbf{Send correspondence to L. Desdoigts: \\E-mail: \linkable{louis.desdoigts@sydney.edu.au }}}
 
 % Title
 
