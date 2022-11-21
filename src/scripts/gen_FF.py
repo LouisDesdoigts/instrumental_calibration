@@ -68,7 +68,8 @@ pix_response = tel.get(flatfield)
 # Plot
 # calculate the mask where there was enough flux to infer the flat field
 # thresh = 2500
-thresh = 1000
+# thresh = 1000
+thresh = 500
 fmask = data.mean(0) >= thresh
 
 out_mask = np.where(data.mean(0) < thresh)
@@ -124,8 +125,7 @@ pr_found_flat = found_pr_masked.flatten()
 pr_true_sort = pr_true_flat[ind]
 pr_found_sort = pr_found_flat[ind]
 
-plt.subplot(1, 2, 1)
-plt.plot(np.linspace(0.8, 1.2), np.linspace(0.8, 1.2), c='k', alpha=0.75)
+ax = plt.subplot(1, 2, 1)
 plt.scatter(pr_true_sort, pr_found_sort, c=colours*1e-3, alpha=0.5, rasterized=True)
 cbar = plt.colorbar()
 cbar.set_label("Counts (Photons $x10^3$)")
@@ -133,15 +133,51 @@ plt.title("PRF Correlation")
 plt.ylabel("Recovered")
 plt.xlabel("True")
 
+xlims = ax.get_xlim()
+ylims = ax.get_ylim()
+ax.set_xlim(xlims)
+ax.set_ylim(ylims)
+plt.plot(np.linspace(0.7, 1.3), np.linspace(0.7, 1.3), c='k', alpha=0.5)
 
-plt.subplot(1, 2, 2)
+thresh_indx = np.where(fmask)
+res = (pix_response - flatfields_found[-1])[thresh_indx].flatten()
+
+ax2 = plt.subplot(1, 2, 2)
 # plt.plot(np.linspace(0.8, 1.2), np.linspace(0.8, 1.2), c='k', alpha=0.75)
 # plt.hist((pr_true_sort - pr_found_sort).flatten(), bins=25)
-plt.hist((pr_true_sort - pr_found_sort).flatten(), bins=51)
-# plt.colorbar()
+# plt.hist((pr_true_sort - pr_found_sort).flatten(), bins=51)
+# plt.hist((pr_true_sort - pr_found_sort).flatten(), bins=101)
+# plt.hist((pr_true_sort - pr_found_sort).flatten(), bins=201)
+plt.hist(res, bins=51)
 plt.title("PRF Residual Histogram")
 plt.ylabel("Counts")
 plt.xlabel("Residual")
+
+xlim = np.abs(np.array(ax2.get_xlim())).max()
+ax2.set_xlim(-xlim, xlim)
+
+plt.xticks(np.linspace(-0.1, 0.1, 5))
+
+# for index, label in enumerate(ax2.xaxis.get_ticklabels()):
+#     if (index+1) % 2 != 0:
+#         label.set_visible(False)
+#     print(index, label, label.get_visible())
+
+# for index, label in enumerate(ax2.xaxis.get_ticklabels()):
+#     print(index, label, label.get_visible())
+
+# for index, label in enumerate(ax2.xaxis.get_ticklabels()):
+#     if (index+1) % 2 != 0:
+#         label.set_visible(False)
+
+
+
+# plt.subplot(1, 3, 3)
+# plt.hist(np.abs(res).flatten(), bins=100)
+# plt.semilogx()
+# plt.title("PRF Residual Histogram")
+# plt.ylabel("Counts")
+# plt.xlabel("Residual")
 
 # plt.subplot(2, 3, 4)
 # plt.title("True Pixel Response")

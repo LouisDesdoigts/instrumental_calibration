@@ -96,17 +96,29 @@ fig1.add_axes(ax2)
 
 plt.title("Zernike Coefficients (nm)")
 ax2.scatter(true_coeff*1e9, found_coeff*1e9)
-vals = np.linspace(true_coeff.min(), true_coeff.max(), 2)
-ax2.plot(vals*1e9, vals*1e9, c='k', alpha=0.5)
+
 ax2.set_xticks([])
 ax2.set_ylabel("Recovered")
 # ax2.yaxis.set_tick_params(labelbottom=False)
+
+xlims = ax2.get_xlim()
+ylims = ax2.get_ylim()
+
+vals = 1e9*np.linspace(1.2*true_coeff.min(), 1.2*true_coeff.max(), 2)
+ax2.plot(vals, vals, c='k', alpha=0.5)
+
+# vals = np.linspace(0.8*true_fluxes.min(), 1.2*true_fluxes.max(), 2)
+# ax4.plot(vals, vals, c='k', alpha=0.5)
+ax2.set_xlim(xlims)
+ax2.set_ylim(ylims)
 
 ax.scatter(true_coeff*1e9, (true_coeff - found_coeff)*1e9)
 # ax.scatter(true_coeff, (true_coeff - found_coeff)/true_coeff)
 ax.axhline(0, c='k')
 ax.set_ylabel("Residuals")
 ax.set_xlabel("True")
+
+ax.set_ylim(1.1 * np.array(ax.get_ylim()))
 
 
 
@@ -116,26 +128,38 @@ true_opd = true_opd.at[np.where(throughput==0.)].set(np.nan)
 found_opd = found_opd.at[np.where(throughput==0.)].set(np.nan)
 
 true_vales = true_opd[np.where(throughput==1.)]
-found_vales = (true_opd-found_opd)[np.where(throughput==1.)]
+found_vales = found_opd[np.where(throughput==1.)]
+residual_vales = (true_opd-found_opd)[np.where(throughput==1.)]
 
 true_rms = (true_vales**2).mean()**0.5
 found_rms = (found_vales**2).mean()**0.5
+residual_rms = (residual_vales**2).mean()**0.5
+
+# Save values
+with open(paths.output / "rms_opd_in.txt", 'w') as f:
+    f.write("{:.3}".format(true_rms*1e9))
+
+with open(paths.output / "rms_opd_resid.txt", 'w') as f:
+    f.write("{:.3}".format(residual_rms*1e9))
 
 from matplotlib.cm import get_cmap
 cmap = get_cmap("inferno")
 cmap.set_bad('k',1.)
 
 plt.subplot(1, 3, 2)
-plt.title("True OPD: {:.3} nm RMS".format(true_rms*1e9))
-plt.imshow(true_opd*1e9, cmap=cmap)
+# plt.title("True OPD: {:.3} nm RMS".format(true_rms*1e9))
+# plt.imshow(true_opd*1e9, cmap=cmap)
+plt.title("Recovered OPD: {:.3} nm RMS".format(found_rms*1e9))
+plt.imshow(found_opd*1e9, cmap=cmap)
 plt.xlabel("Pixels")
 plt.ylabel("Pixels")
 cbar = plt.colorbar()
 cbar.set_label("OPD (nm)")
 
 plt.subplot(1, 3, 3)
-plt.title("OPD Residual: {:.3} nm RMS".format(found_rms*1e9))
-plt.imshow((true_opd - found_opd)*1e9, vmin=vmin*1e9, vmax=vmax*1e9, cmap=cmap)
+plt.title("OPD Residual: {:.3} nm RMS".format(residual_rms*1e9))
+# plt.imshow((true_opd - found_opd)*1e9, vmin=vmin*1e9, vmax=vmax*1e9, cmap=cmap)
+plt.imshow((true_opd - found_opd)*1e9, cmap=cmap)
 plt.xlabel("Pixels")
 plt.ylabel("Pixels")
 cbar = plt.colorbar()

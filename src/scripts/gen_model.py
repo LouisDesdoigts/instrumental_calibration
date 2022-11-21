@@ -67,8 +67,15 @@ optics = dl.Optics(optical_layers)
 # Pixel response
 pix_response = 1 + 0.05*jr.normal(jr.PRNGKey(0), [det_npix, det_npix])
 
+# Detector Noise
+bg_mean = 10
+
+# Create detector layers
+detector_layers =[dl.ApplyPixelResponse(pix_response),
+                  dl.AddConstant(bg_mean)]
+
 # Create Detector object
-detector = dl.Detector([dl.ApplyPixelResponse(pix_response)])
+detector = dl.Detector(detector_layers)
 
 # Observation stratergy, define dithers
 dithers = 2**-.5 * det_pixsize * np.array([[+1, +1],

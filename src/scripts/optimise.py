@@ -86,5 +86,7 @@ with tqdm(range(200),desc='Gradient Descent') as t:
         models_out.append(model)
         t.set_description("Log Loss: {:.3f}".format(np.log10(loss))) # update the progress bar
 
-np.save(paths.data /'losses', np.array(losses))
-p.dump(models_out, open(paths.data / "models_out.p", 'wb'))
+# np.save(paths.data /'losses', np.array(losses))
+# p.dump(models_out, open(paths.data / "models_out.p", 'wb'))
+np.save(paths.data /'losses_', np.array(losses))
+p.dump(models_out, open(paths.data / "models_out_.p", 'wb'))
