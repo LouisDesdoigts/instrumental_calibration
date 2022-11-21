@@ -14,7 +14,7 @@
 \usepackage{graphicx}
 \usepackage{relsize}
 \usepackage{acro}
-% \usepackage{authblk}
+\usepackage{listings}
 \usepackage[colorlinks=true, allcolors=blue]{hyperref}
 
 \acsetup{
@@ -239,26 +239,64 @@ We believe that \dlux fills a unique role in this ecosystem as the only fully-ge
 
 % Describe simulation setup
 % Figure 1: OPD & Pupil in our test, PSF, Flat Field histogram
-Within the $\partial$Lux framework we explicitly define each operation applied to the wavefront as a unique layer. Here we employ a simple optical model with only a pupil and focal plane, defined by 6 sequential layers.
+Within the $\partial$Lux framework we explicitly define each operation applied to the wavefront as a unique layer. Here we employ a simple optical model with only a pupil and focal plane, defined by 6 sequential layers. Here we show how to create this optical system within the $\partial$Lux framework:
 
-\begin{enumerate}
-    \item Wavefront initialisation
-    \item Application of the pupil-support
-    \item Normalisation of the wavefront
-    \item Application of the pupil phase mask
-    \item Application of the optical aberrations
-    \item Propagation to the focal plane
-\end{enumerate}
+
+
+\begin{lstlisting}[language=Python]
+import jax.numpy as np
+import jax.random as jr
+import dLux as dl
+
+# Define wavelengths
+wavels = 1e-9 * np.linspace(545, 645, 3)
+
+# Basic Optical Parameters
+aperture = 0.5
+wf_npix = 512
+
+# Detector Parameters
+det_npix = 1024
+sampling_rate = 20
+det_pixsize = dl.utils.get_pixel_scale(sampling_rate, wavels.mean(), aperture)
+
+# Zernike Basis (ignore piston, tip, tilt)
+zern_basis = dl.utils.zernike_basis(10, wf_npix, outside=0.)[3:]
+coeffs = 2e-8 * jr.normal(jr.PRNGKey(0), (len(zern_basis),))
+
+# Define Optical Configuration
+optical_layers = [
+    dl.CreateWavefront    (wf_npix, aperture),
+    dl.CompoundAperture   ([aperture/2], occulter_radii=[aperture/10]),
+    dl.ApplyBasisOPD      (zern_basis, coeffs),
+    dl.AddOPD             (np.load("mask.npy")),
+    dl.NormaliseWavefront (),
+    dl.AngularMFT         (det_npix, det_pixsize)]
+
+# Create Optics object
+optics = dl.Optics(optical_layers)
+\end{lstlisting}
 
 The first three layers simply modify the amplitude of the wavefront, representing its response to the opaque components of the optics. 
 
 Next the wavefront encounters the binary phase plate diffractive pupil from Toliman \cite{tuthill2018}, with a half-wave total \ac{opd} between the binary regions. We use this as an information-preserving way to spread the \ac{psf} across a large number of pixels which encodes the PRF information for a large number of pixels simultaneously. Alternative methods such as defocusing or using a diffuser \cite{Stefansson2017} come at the cost of eliminating Fourier information which constrain the wavefront and positions. An important consideration which is alleviated by the Toliman pupil is that focal-plane wavefront sensing suffers a sign ambiguity for all phase modes that are inversion-symmetric about the origin, and for unambiguous phase retrieval we therefore need an asymmetric or odd-mode symmetric pupil \cite{Martinache2013}. This pupil and corresponding aberrated \ac{psf} are shown in the left panel of Figure \ref{fig:optics}.
 
-The wavefront then encounters low-order phase errors parameterised by coefficients on Zernike polynomials. We include the first 4 radial terms, ignoring global piston, tip and tilt for a total of 7 terms. Coefficients were randomly drawn from a normal distribution of mean 0 and standard deviation 20\,nm, for a total of \textcolor{red}{showyourwork variance}\,nm RMS total \ac{opd}. These aberrations applied to the pupil mask and resulting \ac{psf} are shown in the middle panel of Figure~\ref{fig:optics}, where we see this induces a large amount of distortion in the \ac{psf}.
+The wavefront then encounters low-order phase errors parameterised by coefficients on Zernike polynomials. We include the first 4 radial terms, ignoring global piston, tip and tilt for a total of 7 terms. Coefficients were randomly drawn from a normal distribution of mean 0 and standard deviation 20\,nm, for a total of \variable{output/opd_in.txt}\,nm RMS total \ac{opd}. These aberrations applied to the pupil mask and resulting \ac{psf} are shown in the middle panel of Figure~\ref{fig:optics}, where we see this induces a large amount of distortion in the \ac{psf}.
 
-This is then propagated to the $1024\times1024$ pixel focal plane by a two-sided matrix Fourier transform \cite{Soummer2007,Martinache2020}. The detector PRF is modelled by multiplying the resulting \ac{psf} by a pixel sensitivity map which is drawn from a normal distribution with mean 0 and standard deviation 0.05. The histogram of pixel sensitivities and total pixel sensitivity map is shown in the right panel of Figure~\ref{fig:optics}.
+This is then propagated to the $1024\times1024$ pixel focal plane by a two-sided matrix Fourier transform \cite{Soummer2007,Martinache2020}. The detector PRF is modelled by multiplying the resulting \ac{psf} by a pixel sensitivity map which is drawn from a normal distribution with mean 0 and standard deviation 0.05. The histogram of pixel sensitivities and total pixel sensitivity map is shown in the right panel of Figure~\ref{fig:optics}. Here we show how to create this within the $\partial$Lux framework and create an instrument object to model this:
 
-This operation is then performed over 20 stars with uniform 100\,nm bandpass spectra sampled at three wavelengths. This set of stars is then imaged four times with telescope pointing dithers applied between each image. This is done to break the natural degeneracy of stellar fluxes and pixel sensitivities. This total model requires the calculation of 240 individual \ac{psf}s over a $1024\times1024$ detector, which takes a total of \textcolor{red}{showyourwork variable} seconds to evaluate on an Apple M1 CPU. The data set is generated by taking this set of images and applying Poisson photon noise to the \ac{psf}s and additive Gaussian noise to every pixel as detector read-noise. Using this set of images we recover stellar positions and fluxes, optical aberrations, and individual pixel sensitivities. This gives us 40 stellar positional parameters (20 RA and DEC each), 20 stellar flux parameters, 7 optical aberration parameters, and 1,048,576 detector parameters: the dimensionality of the problem is vastly dominated by the \ac{prf} parameters, which is why this problem is made tractable only by using autodiff.
+\begin{lstlisting}[language=Python]
+# Pixel response
+pix_response = 1 + 0.05*jr.normal(jr.PRNGKey(0), [det_npix, det_npix])
+
+# Create Detector object
+detector = dl.Detector([dl.ApplyPixelResponse(pix_response)])
+
+# Combine into instrument
+tel = dl.Instrument(optics=optics, detector=detector)
+\end{lstlisting}
+
+This operation is then performed over 20 stars with uniform 100\,nm bandpass spectra sampled at three wavelengths 545nm, 595nm and 645nm. This set of stars is then imaged four times with telescope pointing dithers applied between each image. This is done to break the natural degeneracy of stellar fluxes and pixel sensitivities. This total model requires the calculation of 240 individual \ac{psf}s over a $1024\times1024$ detector, which takes a total of \textcolor{red}{showyourwork variable} seconds to evaluate on an Apple M1 CPU. The data set is generated by taking this set of images and applying Poisson photon noise to the \ac{psf}s and additive Gaussian noise to every pixel as detector read-noise with mean 10 and variance 2.5. This gives us an average of \textcolor{red}{showyourwork variable} photons per pixel. Using this set of images we recover stellar positions and fluxes, optical aberrations, and individual pixel sensitivities. This gives us 40 stellar positional parameters (20 RA and DEC each), 20 stellar flux parameters, 7 optical aberration parameters, and 1,048,576 detector parameters: the dimensionality of the problem is vastly dominated by the \ac{prf} parameters, which is why this problem is made tractable only by using autodiff.
 
 
 
@@ -298,7 +336,7 @@ The optical propagation algorithm employs two-sided matrix Fourier transforms \c
 \begin{figure*}
     \centering
     \includegraphics[width=0.8\textwidth]{figs/astro_params.pdf}
-    \caption{Left: recovery of the individual RA-Dec positions of each star, with the top section showing the correlation between the true and recovered values in units of arcseconds. The bottom section shows the individual residuals for each. Clearly these parameters have been well recovered through the optimisation. Right: the recovery of the flux parameters in units of photons. The top section shows the correlation between the true and recovered values, and the bottom showing the resulting residuals. \textcolor{red}{Should we address the slight overestimation of fluxes due to the PRF values being a relative measure so a small global covaraince is present?}}
+    \caption{Left: recovery of the individual RA-Dec positions of each star, with the top section showing the correlation between the true and recovered values in units of arcseconds. The bottom section shows the individual residuals for each. Clearly these parameters have been well recovered through the optimisation. Right: the recovery of the flux parameters in units of photons. The top section shows the correlation between the true and recovered values, and the bottom showing the resulting residuals.}
     \label{fig:astro_params}
 \end{figure*}
 
