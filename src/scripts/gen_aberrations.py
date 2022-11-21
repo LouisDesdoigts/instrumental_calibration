@@ -143,7 +143,7 @@ with open(paths.output / "rms_opd_resid.txt", 'w') as f:
     f.write("{:.3}".format(residual_rms*1e9))
 
 from matplotlib.cm import get_cmap
-cmap = get_cmap("inferno")
+cmap = get_cmap("inferno").copy()
 cmap.set_bad('k',1.)
 
 plt.subplot(1, 3, 2)

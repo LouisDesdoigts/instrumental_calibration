@@ -49,7 +49,7 @@ zernikes = 'ApplyBasisOPD.coefficients'
 psf = tel.set(zernikes, np.zeros(len(tel.get(zernikes)))).model(source=dl.PointSource(wavelengths=wavels))
 aberrated_psf = tel.model(source=dl.PointSource(wavelengths=wavels))
 
-cmap = get_cmap("inferno")
+cmap = get_cmap("inferno").copy()
 cmap.set_bad('k',1.)
 
 plt.figure(figsize=(15, 8))

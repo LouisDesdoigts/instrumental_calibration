@@ -5,3 +5,4 @@ dependencies:
   - pip:
       - matplotlib==3.4.3
       - dLux==0.9.2
+      - dill
