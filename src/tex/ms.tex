@@ -353,18 +353,38 @@ The optical propagation algorithm employs two-sided matrix Fourier transforms \c
 
 \begin{figure*}
     \centering
-    \includegraphics[width=0.8\textwidth]{figures/ff.pdf}
+    \includegraphics[width=0.8\textwidth]{figs/ff.pdf}
     \caption{This figure shows the PRF values after optimisation. The left panel shows the correlation between the pixel-level true and recovered values. Each ploint is color-coded with the total flux incident to each pixel, ie its \ac{snr}. The pixels with a greater signal are recovered better as expected. The right panel shows the histogram of these residuals, with the majority of values being very well recovered and small symmetric about a residual of zero.}
     \label{fig:flat_field}
-    \script{gen_FF.py}
+    % \script{gen_FF.py}
 \end{figure*}
 
 \section{Discussion}
 
-This algorithm demonstrates promising performance applied to complex high-dimensional optimisation problems as shown in Section~\ref{sec:phaseretrieval}. However, this method does have its limitations. The use of a forwards model clearly requires a good match between the true and model \ac{psf}. The benefit of using differentiable optical models however is that it provides the perfect platform upon which to directly learn this model from the data, with the ability to scale the complexity as required for each problem. Similarly since we are working with direct image data as opposed to reduced data-products is that miss-calibrations of the system are simple to diagnose through direct examination of the residuals of the data and model.
+\subsection{Limitations}
+This algorithm demonstrates promising performance applied to complex high-dimensional optimisation problems as shown in Section~\ref{sec:phaseretrieval}. However, this method does have its limitations.
 
-There are also clear limits in which these methods will begin to fail, such as the low \ac{snr} regime. Without the ability to recover the \ac{psf} model accurately, pixel level information will be dominated by the noise processes and the PRF will not be sufficiently encoded. This can be directly seen in Figure~\ref{fig:flat_field}, with the PRF residual having greater variance in for low-flux pixels. This however has a simple solution of observing brighter targets for calibration purposes or observing chosen targets for longer, until a sufficient amount of information is encoded into the data.
+% poor model
+The use of a forwards model clearly requires a good match between the true and model \ac{psf}. The benefit of using differentiable optical models however is that it provides the perfect platform upon which to directly learn this model from the data, with the ability to scale the complexity as required for each problem. Similarly since we are working with direct image data as opposed to reduced data-products, miss-calibrations of the system are simple to diagnose through direct examination of the residuals of the data and model. Figure~\ref{fig:data_residual} demonstrates that in this example we can be sure of a good fit because the final residual is purely noise
 
+% Single noise realisation
+We further examine the limits in which this method begins to break down. When only examining a single image each pixel only has a single realisation of both photon and detector noise, resulting in an over-fitting of the PRF fit to this noise. Furthermore, in the low \ac{snr} regime, the model can fail to converge due to divergent flux values as the model tries to correct for the noise across the whole image. We test this limitation by fitting a single-star using a single image with increases levels of flux from $10^4$\,photons to $10^7$\,photons, using the same optical prescription as described in Section~\ref{sec:simulation}. Figure~\ref{fig:diverge} show the correlation of the recovered fluxes and the fractional flux errors. The low \ac{snr} models diverge from their true values
+
+\begin{figure*}
+    \centering
+    \includegraphics[width=0.8\textwidth]{figs/divergence.png}
+    \caption{\textcolor{red}{TODO: Caption}}
+    \label{fig:diverge}
+    % \script{gen_FF.py}
+\end{figure*}
+
+In the high \ac{snr} regime and hence the per-pixel freedom recovered With near complete per-pixel freedom and only a single realisation of noise ie when only using a single image, each pixel
+Taking the low-flux single-star single image
+There are also clear limits in which these methods will begin to fail, such as the low \ac{snr} regime. One 
+
+Without the ability to recover the \ac{psf} model accurately, pixel level information will be dominated by the noise processes and the PRF will not be sufficiently encoded. This can be directly seen in Figure~\ref{fig:flat_field}, with the PRF residual having greater variance in for low-flux pixels. This however has a simple solution of observing brighter targets for calibration purposes or observing chosen targets for longer, until a sufficient amount of information is encoded into the data.
+
+\subsection{Other?}
 It might also seem limited without a dense region of stars to observe as we can not learn about the pixel-level effects in regions with no signal, however we only care about the regions of the detector that have photons landing in them as these are the only ones that will be affected by miss-calibrations in detector level effects.
 
 % Nyquist?
