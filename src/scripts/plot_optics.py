@@ -73,9 +73,11 @@ plt.ylabel("Pixels")
 cbar = plt.colorbar()
 cbar.set_label("Probability")
 
+counts = np.load(paths.data / "pixel_response_counts.npy")
+bins = np.load(paths.data / "pixel_response_bins.npy")
 plt.subplot(2, 3, 3)
 plt.title("Pixel Response Distribution")
-plt.hist(FF.flatten(), bins=50)
+plt.hist(bins[:-1], bins, weights=counts)
 plt.ylabel("Counts")
 plt.xlabel("Relative Sensitivity")
 

@@ -91,3 +91,60 @@ p.dump(models_out, open(paths.data / "models_out.p", 'wb'))
 # Get final PSFs
 psfs_out = models_out[-1].model()
 np.save(paths.data / 'final_psfs', psfs_out)
+
+# Pre calc FF errors
+thresh = 1000
+fmask = data >= thresh
+out_mask = np.where(data < thresh)
+in_mask = np.where(data >= thresh)
+
+data_tile = np.tile(data, [len(models_out), 1, 1])
+in_mask_tiled = np.where(data_tile >= thresh)
+
+# calculate residuals
+pr_residuals = pix_response[in_mask] - flatfields_found[-1][in_mask]
+
+# for correlation plot
+true_pr_masked = pix_response.at[out_mask].set(1)
+found_pr_masked = flatfields_found[-1].at[out_mask].set(1)
+
+# FF Scatter Plot
+data_sum = data
+colours = data_sum.flatten()
+ind = np.argsort(colours)
+colours = colours[ind]
+
+pr_true_flat = true_pr_masked.flatten()
+pr_found_flat = found_pr_masked.flatten()
+
+pr_true_sort = pr_true_flat[ind]
+pr_found_sort = pr_found_flat[ind]
+
+# Errors
+pfound = flatfields_found[in_mask_tiled].reshape([len(models_out), len(in_mask[0])])
+ptrue = pix_response[in_mask]
+pr_res = ptrue - pfound
+masked_error = np.abs(pr_res).mean(-1)
+
+# FF Scatter Plot
+data_sum = data
+colours = data_sum.flatten()
+ind = np.argsort(colours)
+colours = colours[ind]
+
+pr_true_flat = true_pr_masked.flatten()
+pr_found_flat = found_pr_masked.flatten()
+
+pr_true_sort = pr_true_flat[ind]
+pr_found_sort = pr_found_flat[ind]
+
+np.save(paths.data / 'true_prf_sorted', pr_true_sort)
+np.save(paths.data / 'found_prf_sorted', pr_found_sort)
+np.save(paths.data / 'colours', colours)
+
+# Histogram
+thresh_indx = np.where(fmask)
+res = (pix_response - flatfields_found[-1])[thresh_indx].flatten()
+counts, bins = np.histogram(res.flatten(), bins=51)
+np.save(paths.data / "pixel_response_resid_counts.npy", counts)
+np.save(paths.data / "pixel_response_resid_bins.npy", bins)

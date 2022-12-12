@@ -44,6 +44,9 @@ optics = dl.Optics(optical_layers)
 # Pixel response
 pix_response = 1 + 0.05*jr.normal(jr.PRNGKey(1), [det_npix, det_npix])
 # pix_response = np.ones([det_npix, det_npix])
+counts, bins = np.histogram(pix_response.flatten(), bins=50)
+np.save(paths.data / "pixel_response_counts.npy", counts)
+np.save(paths.data / "pixel_response_bins.npy", bins)
 
 # Detector Noise
 bg_mean = 10
