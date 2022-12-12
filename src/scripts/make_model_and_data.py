@@ -109,6 +109,13 @@ model = model.set(flatfield, np.ones((det_npix, det_npix)))
 # Initial PSFs
 initial_psfs = model.model()
 
+# Get plain and aberrated psfs
+psf_tel = tel.set(['detector'], [None])
+psf = psf_tel.set(zernikes, np.zeros(len(tel.get(zernikes)))).model(source=dl.PointSource(wavelengths=wavels))
+aberrated_psf = psf_tel.model(source=dl.PointSource(wavelengths=wavels))
+np.save(paths.data / "plain_psf", psf)
+np.save(paths.data / "aberrated_psf", aberrated_psf)
+
 # Save models and data
 p.dump(tel, open(paths.data / "instrument.p", 'wb'))
 p.dump(source, open(paths.data / "source.p", 'wb'))

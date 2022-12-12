@@ -25,12 +25,15 @@ aberrated_pupil = pupil + opd
 
 # FF
 FF = tel.ApplyPixelResponse.pixel_response
-psf_tel = tel.set(['detector'], [None])
+# psf_tel = tel.set(['detector'], [None])
 
-# Get psfs
-zernikes = 'ApplyBasisOPD.coefficients'
-psf = psf_tel.set(zernikes, np.zeros(len(tel.get(zernikes)))).model(source=dl.PointSource(wavelengths=wavels))
-aberrated_psf = psf_tel.model(source=dl.PointSource(wavelengths=wavels))
+# # Get psfs
+# zernikes = 'ApplyBasisOPD.coefficients'
+# psf = psf_tel.set(zernikes, np.zeros(len(tel.get(zernikes)))).model(source=dl.PointSource(wavelengths=wavels))
+# aberrated_psf = psf_tel.model(source=dl.PointSource(wavelengths=wavels))
+
+psf = np.load(paths.data / "plain_psf.npy")
+aberrated_psf = np.load(paths.data / "aberrated_psf.npy")
 
 cmap = get_cmap("inferno").copy()
 cmap.set_bad('k',1.)
