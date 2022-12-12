@@ -328,10 +328,11 @@ This operation is then performed over 15 stars with uniform 100\,nm bandpass spe
 
 \begin{figure*}
     \centering
-    \includegraphics[width=\textwidth]{figs/data_resid.pdf}
+    % \includegraphics[width=\textwidth]{figs/data_resid.pdf}
+    \includegraphics[width=\textwidth]{figures/data_resid.pdf}
     \caption{Left: single image of the full four that is used to create the full data set. This image has had both photon and detector noise applied. By eye it is clearly difficult to disentangle the astrophysical information. The large number of overlapping \ac{psf}s is chosen in order to spread light across the majority of the detector so that we encode the PRF information for as much of the detector as possible. Middle: the residual of this single image from the data and the initial uncalibrated model. Clearly these residuals are large, showing that there is a large amount of calibration required. Right: this same residual after the model has been optimised. The residual values are much smaller and at the noise floor. A small zoomed region is shown so that the individual pixel-level residuals can be seen.}
     \label{fig:data_residual}
-    % \script{gen_data_resid.py}
+    \script{plot_gen_data_resid.py}
 \end{figure*}
 
 
@@ -353,11 +354,11 @@ The optical propagation algorithm employs two-sided matrix Fourier transforms \c
 
 \begin{figure*}
     \centering
-    % \includegraphics[width=0.8\textwidth]{figures/astro_params.pdf}
-    \includegraphics[width=0.8\textwidth]{figs/astro_params.pdf}
+    \includegraphics[width=0.8\textwidth]{figures/astro_params.pdf}
+    % \includegraphics[width=0.8\textwidth]{figs/astro_params.pdf}
     \caption{Left: recovery of the individual RA-Dec positions of each star, with the top section showing the correlation between the true and recovered values in units of arcseconds. The bottom section shows the individual residuals for each. Clearly these parameters have been well recovered through the optimisation. Right: the recovery of the flux parameters in units of photons. The top section shows the correlation between the true and recovered values, and the bottom showing the resulting residuals. The error bars are the 1-$\sigma$ deviations calculated from the covariance Hessian matrix marginalised over positions, fluxes and aberrations.}
     \label{fig:astro_params}
-    % \script{gen_astro_params.py}
+    \script{plot_gen_astro_params.py}
 \end{figure*}
 
 \begin{figure*}
@@ -386,10 +387,11 @@ This algorithm demonstrates promising performance applied to complex high-dimens
 
 \begin{figure*}
     \centering
-    \includegraphics[width=0.8\textwidth]{figs/divergence.pdf}
+    % \includegraphics[width=0.8\textwidth]{figs/divergence.pdf}
+    \includegraphics[width=0.8\textwidth]{figures/divergence.pdf}
     \caption{Parameter recovery of a single star over varying \ac{snr}. Left: Absolute positional residuals vs total flux. Right: Fractional flux error vs total flux.}
     \label{fig:diverge}
-    % \script{gen_FF.py}
+    \script{plot_divergence.py}
 \end{figure*}
 
 % Without the ability to recover the \ac{psf} model accurately, pixel level information will be dominated by the noise processes and the PRF will not be sufficiently encoded. This can be directly seen in Figure~\ref{fig:flat_field}, with the PRF residual having greater variance in for low-flux pixels. This however has a simple solution of observing brighter targets for calibration purposes or observing chosen targets for longer, until a sufficient amount of information is encoded into the data.
