@@ -1,33 +1,11 @@
-# Core jax
-import jax
 import jax.numpy as np
 import jax.random as jr
-
-# Optimisation
+from jax.scipy.stats import poisson
 import equinox as eqx
 import optax
-
-# Optics
-import dLux as dl
-from dLux.utils import arcseconds_to_radians as a2r
-from dLux.utils import radians_to_arcseconds as r2a
-
-# Paths
 import paths
-
-# Pickle
-# import pickle as p
 import dill as p
-
-# Plotting/visualisation
-import matplotlib.pyplot as plt
 from tqdm import tqdm
-
-plt.rcParams['image.cmap'] = 'inferno'
-plt.rcParams["font.family"] = "serif"
-plt.rcParams["image.origin"] = 'lower'
-plt.rcParams['figure.dpi'] = 120
-
 
 # Load model
 model = p.load(open(paths.data / 'model.p', 'rb'))
@@ -40,7 +18,7 @@ flatfield = 'ApplyPixelResponse.pixel_response'
 parameters = [positions, fluxes, zernikes, flatfield]
 
 # Optimisation hyper parameters
-b1 = .7 # Momentum -> Higer = more momentum
+b1 = .75 # Momentum -> Higer = more momentum
 # b2 = 0.5 # Acceleration -> Higer = more momentum
 
 # Position
@@ -81,8 +59,8 @@ optimisers = [pos_optimiser, flux_optimiser, coeff_optimiser, FF_optimiser]
 optim, opt_state, args = model.get_optimiser(parameters, optimisers, get_args=True)
 
 def log_like(model, data):
-    psfs = np.maximum(model.observe(), 1e-8)
-    return -np.sum(jax.scipy.stats.poisson.logpmf(data, psfs))
+    psfs = np.maximum(model.model(), 1e-8)
+    return -np.sum(poisson.logpmf(data, psfs))
 
 def log_prior(model, ff_mean=1., ff_std=0.05):
     return 0.5*(np.square((ff_mean - model.get(flatfield))/ff_std)).sum()
@@ -92,13 +70,10 @@ def log_prior(model, ff_mean=1., ff_std=0.05):
 def loss_fn(model, data):
     return log_prior(model) + log_like(model, data)
 
-# %%time
-loss, grads = loss_fn(model, data) # Compile
-print(loss)
-print("Initial Loss: {}".format(int(loss)))
-print("Initial Loss: {}".format(np.log10(loss)))
+# Compile
+loss, grads = loss_fn(model, data)
 
-
+# Optimise
 losses, models_out = [], []
 with tqdm(range(100), desc='Gradient Descent') as t:
     for i in t:
@@ -109,5 +84,10 @@ with tqdm(range(100), desc='Gradient Descent') as t:
         models_out.append(model)
         t.set_description("Log Loss: {:.3f}".format(np.log10(loss))) # update the progress bar
 
+# Save model and losses
 np.save(paths.data / 'losses', np.array(losses))
 p.dump(models_out, open(paths.data / "models_out.p", 'wb'))
+
+# Get final PSFs
+psfs_out = models_out[-1].model()
+np.save(paths.data / 'final_psfs', psfs_out)

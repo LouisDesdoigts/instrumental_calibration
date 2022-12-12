@@ -1,25 +1,7 @@
-# Core jax
-import jax
 import jax.numpy as np
-import jax.random as jr
-
-# Optimisation
-import equinox as eqx
-import optax
-
-# Optics
-import dLux as dl
-from dLux.utils import arcseconds_to_radians as a2r
-from dLux.utils import radians_to_arcseconds as r2a
-
-# Paths
 import paths
-
-# Pickle
-# import pickle as p
 import dill as p
-
-# Plotting/visualisation
+import dLux as dl
 import matplotlib.pyplot as plt
 from matplotlib.cm import get_cmap
 

@@ -1,25 +1,6 @@
-# Core jax
-import jax
 import jax.numpy as np
-import jax.random as jr
-
-# Optimisation
-import equinox as eqx
-import optax
-
-# Optics
-import dLux as dl
-from dLux.utils import arcseconds_to_radians as a2r
-from dLux.utils import radians_to_arcseconds as r2a
-
-# Paths
 import paths
-
-# Pickle
-# import pickle as p
 import dill as p
-
-# Plotting/visualisation
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
@@ -34,13 +15,16 @@ tel = p.load(open(paths.data / 'instrument.p', 'rb'))
 model = p.load(open(paths.data / 'model.p', 'rb'))
 source = p.load(open(paths.data / 'source.p', 'rb'))
 data = np.load(paths.data / "data.npy")
+final_psfs = np.load(paths.data / "final_psfs.npy")
+initital_psfs = np.load(paths.data / "initial_psfs.npy")
 
 plt.figure(figsize=(15, 4.5))
 plt.suptitle("Data and Residuals", size=15)
 
 ax1 = plt.subplot(1, 3, 1)
 plt.title("Sample Data")
-plt.imshow(data[0]*1e-3)
+# plt.imshow(data[0]*1e-3)
+plt.imshow(data*1e-3)
 # plt.imshow(data*1e-3)
 plt.xlabel("Pixels")
 plt.ylabel("Pixels")
@@ -50,10 +34,12 @@ cbar = plt.colorbar(cax=cax)
 cbar.set_label("Counts $x10^3$")
 
 
-initital_psfs = model.observe()
+# initital_psfs = model.observe()
+# initital_psfs = model.model()
 ax2 = plt.subplot(1, 3, 2)
 plt.title("Initial Residual")
-plt.imshow((initital_psfs[0] - data[0])*1e-3)
+# plt.imshow((initital_psfs[0] - data[0])*1e-3)
+plt.imshow((initital_psfs - data)*1e-3)
 # plt.imshow((initital_psfs[0] - data)*1e-3)
 # plt.imshow(data[0]/initital_psfs[0])
 plt.xlabel("Pixels")
@@ -64,13 +50,15 @@ cbar = plt.colorbar(cax=cax)
 cbar.set_label("Counts $x10^3$")
 
 
-final_model = p.load(open(paths.data / 'models_out.p', 'rb'))[-1]
-final_psfs = final_model.observe()
+# final_model = p.load(open(paths.data / 'models_out.p', 'rb'))[-1]
+# final_psfs = final_model.observe()
+# final_psfs = final_model.model()
 
 ax3 = plt.subplot(1, 3, 3)
 plt.title("Final Residual")
 # plt.title("Final Fractional Residual")
-plt.imshow((final_psfs[0] - data[0])*1e-3)
+# plt.imshow((final_psfs[0] - data[0])*1e-3)
+plt.imshow((final_psfs - data)*1e-3)
 # plt.imshow((final_psfs[0] - data)*1e-3)
 # plt.imshow(data[0]/final_psfs[0])
 plt.xlabel("Pixels")
@@ -84,7 +72,8 @@ cbar.set_label("Counts $x10^3$")
 axins = ax3.inset_axes([0.5, 0.5, 0.45, 0.45])
 # axins = ax3.inset_axes([0.05, 0.05, 0.045, 0.045])
 
-axins.imshow((final_psfs[0] - data[0])*1e-3)
+# axins.imshow((final_psfs[0] - data[0])*1e-3)
+axins.imshow((final_psfs - data)*1e-3)
 # axins.imshow((final_psfs[0] - data)*1e-3)
 # axins.imshow(data[0]/final_psfs[0])
 # sub region of the original image

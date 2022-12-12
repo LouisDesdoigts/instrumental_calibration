@@ -7,3 +7,5 @@
 *.tiff
 *.gif
 *.svg
+
+.ipynb_checkpoints/

@@ -1,27 +1,8 @@
-# Core jax
-import jax
 import jax.numpy as np
-import jax.random as jr
-
-# Optimisation
-import equinox as eqx
-import optax
-
-# Optics
-import dLux as dl
-from dLux.utils import arcseconds_to_radians as a2r
 from dLux.utils import radians_to_arcseconds as r2a
-
-# Paths
 import paths
-
-# Pickle
-# import pickle as p
 import dill as p
-
-# Plotting/visualisation
 import matplotlib.pyplot as plt
-from tqdm import tqdm
 
 plt.rcParams['image.cmap'] = 'inferno'
 plt.rcParams["font.family"] = "serif"
@@ -34,6 +15,7 @@ tel = p.load(open(paths.data / 'instrument.p', 'rb'))
 models_out = p.load(open(paths.data / 'models_out.p', 'rb'))
 losses = np.load(paths.data / 'losses.npy')
 data = np.load(paths.data / "data.npy")
+psfs_out = np.load(paths.data / "final_psfs.npy")
 
 positions = 'MultiPointSource.position'
 fluxes = 'MultiPointSource.flux'
@@ -44,8 +26,9 @@ parameters = [positions, fluxes, zernikes, flatfield]
 
 
 # Get parameters
-nepochs = len(models_out)
-psfs_out = models_out[-1].observe()
+# nepochs = len(models_out)
+# psfs_out = models_out[-1].observe()
+# psfs_out = models_out[-1].model()
 
 positions_found  = np.array([model.get(positions) for model in models_out])
 fluxes_found     = np.array([model.get(fluxes)    for model in models_out])
@@ -64,7 +47,7 @@ r_residuals = r2a(r_residuals_rads)
 
 # Errors
 Nstars = len(tel.get(positions))
-errs = np.diag(np.load('cov_mat.npy'))**0.5
+errs = np.diag(np.load(paths.data / 'cov_mat.npy'))**0.5
 
 # Positions
 arcsec = r2a(1)

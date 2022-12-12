@@ -1,27 +1,8 @@
-# Core jax
-import jax
 import jax.numpy as np
-import jax.random as jr
-
-# Optimisation
-import equinox as eqx
-import optax
-
-# Optics
-import dLux as dl
-from dLux.utils import arcseconds_to_radians as a2r
 from dLux.utils import radians_to_arcseconds as r2a
-
-# Paths
 import paths
-
-# Pickle
-# import pickle as p
 import dill as p
-
-# Plotting/visualisation
 import matplotlib.pyplot as plt
-from tqdm import tqdm
 
 plt.rcParams['image.cmap'] = 'inferno'
 plt.rcParams["font.family"] = "serif"
@@ -34,6 +15,7 @@ tel = p.load(open(paths.data / 'instrument.p', 'rb'))
 models_out = p.load(open(paths.data / 'models_out.p', 'rb'))
 losses = np.load(paths.data / 'losses.npy')
 data = np.load(paths.data / "data.npy")
+psfs_out = np.load(paths.data / "final_psfs.npy")
 
 positions = 'MultiPointSource.position'
 fluxes = 'MultiPointSource.flux'
@@ -43,9 +25,10 @@ parameters = [positions, fluxes, zernikes, flatfield]
 
 
 
-# Get parameters
-nepochs = len(models_out)
-psfs_out = models_out[-1].observe()
+# # Get parameters
+# nepochs = len(models_out)
+# # psfs_out = models_out[-1].observe()
+# psfs_out = models_out[-1].model()
 
 positions_found  = np.array([model.get(positions) for model in models_out])
 fluxes_found     = np.array([model.get(fluxes)    for model in models_out])
@@ -71,7 +54,8 @@ pix_response = tel.get(flatfield)
 thresh = 1000
 # thresh = 500
 
-data_sort = np.sort(data[0].flatten())
+# data_sort = np.sort(data[0].flatten())
+data_sort = np.sort(data.flatten())
 nhists = 4
 size = len(data_sort)//nhists
 
@@ -80,11 +64,12 @@ for i in range(nhists):
     threshes.append(data_sort[size*i])
 threshes.append(data_sort[-1] + 1)
 
-print(threshes)
+# print(threshes)
 
 # threshes = np.array([0, 2500, 5000, 7500, 10000, 1e6])
 
-data_flat = data[0].flatten()
+# data_flat = data[0].flatten()
+data_flat = data.flatten()
 indexes = []
 for i in range(len(threshes)-1):
     low = np.where(data_flat >= threshes[i])[0]
@@ -113,18 +98,22 @@ for i in range(len(indexes)):
 plt.legend()
 plt.xlim(-0.2, 0.2)
 plt.savefig(paths.figures / "hists.pdf", dpi=300)
-print("Done hists")
+# print("Done hists")
 
 
-fmask = data.mean(0) >= thresh
+# fmask = data.mean(0) >= thresh
+fmask = data >= thresh
 # fmask = data >= thresh
 
-out_mask = np.where(data.mean(0) < thresh)
+# out_mask = np.where(data.mean(0) < thresh)
+out_mask = np.where(data < thresh)
 # out_mask = np.where(data < thresh)
-in_mask = np.where(data.mean(0) >= thresh)
+# in_mask = np.where(data.mean(0) >= thresh)
+in_mask = np.where(data >= thresh)
 # in_mask = np.where(data >= thresh)
 
-data_tile = np.tile(data.mean(0), [len(models_out), 1, 1])
+# data_tile = np.tile(data.mean(0), [len(models_out), 1, 1])
+data_tile = np.tile(data, [len(models_out), 1, 1])
 # data_tile = np.tile(data, [len(models_out), 1, 1])
 in_mask_tiled = np.where(data_tile >= thresh)
 
@@ -136,7 +125,8 @@ true_pr_masked = pix_response.at[out_mask].set(1)
 found_pr_masked = flatfields_found[-1].at[out_mask].set(1)
 
 # FF Scatter Plot
-data_sum = data.sum(0) # [flux_mask]
+# data_sum = data.sum(0) # [flux_mask]
+data_sum = data # [flux_mask]
 # data_sum = data
 colours = data_sum.flatten()
 ind = np.argsort(colours)
@@ -158,7 +148,8 @@ plt.figure(figsize=(10, 4))
 plt.suptitle("Pixel Response Function Recovery", size=15)
 
 # FF Scatter Plot
-data_sum = data.sum(0)
+# data_sum = data.sum(0)
+data_sum = data
 # data_sum = data
 colours = data_sum.flatten()
 ind = np.argsort(colours)

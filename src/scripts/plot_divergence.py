@@ -1,28 +1,9 @@
-# Core jax
-import jax
 import jax.numpy as np
-import jax.random as jr
-
-# Optimisation
-import equinox as eqx
-import optax
-
-# Optics
-import dLux as dl
-from dLux.utils import arcseconds_to_radians as a2r
 from dLux.utils import radians_to_arcseconds as r2a
-
-# Paths
 import paths
-
-# Pickle
 import dill as p
-
-# Plotting/visualisation
 import matplotlib.pyplot as plt
-from tqdm import tqdm
 
-# %matplotlib inline
 plt.rcParams['image.cmap'] = 'inferno'
 plt.rcParams["font.family"] = "serif"
 plt.rcParams["image.origin"] = 'lower'

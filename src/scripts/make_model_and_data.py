@@ -1,32 +1,11 @@
 # Core jax
-import jax
 import jax.numpy as np
 import jax.random as jr
-
-# Optimisation
 import equinox as eqx
-import optax
-
-# Optics
 import dLux as dl
 from dLux.utils import arcseconds_to_radians as a2r
-from dLux.utils import radians_to_arcseconds as r2a
-
-# Paths
-import paths
-
-# Pickle
-# import pickle as p
 import dill as p
-
-# Plotting/visualisation
-import matplotlib.pyplot as plt
-
-plt.rcParams['image.cmap'] = 'inferno'
-plt.rcParams["font.family"] = "serif"
-plt.rcParams["image.origin"] = 'lower'
-plt.rcParams['figure.dpi'] = 120
-
+import paths
 
 '''Create Optics, Detector, Source & Instrument'''
 # Define wavelengths
@@ -40,7 +19,6 @@ wf_npix = 512
 # Detector Parameters
 det_npix = 1024
 sampling_rate = 20
-
 det_pixsize = dl.utils.get_pixel_scale(sampling_rate, wavels.mean(), aperture)
 
 # Load mask
@@ -67,7 +45,6 @@ optics = dl.Optics(optical_layers)
 pix_response = 1 + 0.05*jr.normal(jr.PRNGKey(1), [det_npix, det_npix])
 # pix_response = np.ones([det_npix, det_npix])
 
-
 # Detector Noise
 bg_mean = 10
 
@@ -78,23 +55,14 @@ detector_layers =[dl.ApplyPixelResponse(pix_response),
 # Create Detector object
 detector = dl.Detector(detector_layers)
 
-# Observation stratergy, nims
-nims = 1
-def observe_fn(model, nims):
-    psf = model.apply('MultiPointSource.flux', lambda x: x/nims).model()
-    return np.tile(psf, (nims, 1, 1))
-
-# Observation dictionary
-observation = {'fn': observe_fn, 'args': nims}
-
 # Multiple sources to observe
-Nstars = 25
+Nstars = 20
 flux = 1e8
-true_fluxes = flux + (flux/10)*jr.normal(jr.PRNGKey(3), (Nstars,))
+true_fluxes = flux + (flux/10)*jr.normal(jr.PRNGKey(2), (Nstars,))
 
 # Random
-r_max = 4
-true_positions = a2r(jr.uniform(jr.PRNGKey(2), (Nstars, 2), minval=-r_max, maxval=r_max))
+r_max = 4.5
+true_positions = a2r(jr.uniform(jr.PRNGKey(4), (Nstars, 2), minval=-r_max, maxval=r_max))
 
 # Uniform
 # Nstars = 5**2
@@ -107,17 +75,15 @@ true_positions = a2r(jr.uniform(jr.PRNGKey(2), (Nstars, 2), minval=-r_max, maxva
 source = dl.MultiPointSource(true_positions, true_fluxes, wavelengths=wavels)
 
 # Combine into instrument
-tel = dl.Instrument(optics=optics, sources=[source], detector=detector,
-                    observation=observation)
+tel = dl.Instrument(optics=optics, sources=[source], detector=detector)
 
 # Observe!
 bg_val = tel.AddConstant.value
-# psfs = tel.observe() - bg_val
-psfs = tel.set(['detector'], [None]).observe()
-print(psfs.sum(0).mean())
+psfs = tel.set(['detector'], [None]).model()
+# print(psfs.sum(0).mean())
 
 # Apply some noise to the PSF Background noise
-BG_noise = np.maximum(2.5*jr.normal(jr.PRNGKey(4), psfs.shape) + bg_val, 0.)
+BG_noise = np.maximum(2.5*jr.normal(jr.PRNGKey(3), psfs.shape) + bg_val, 0.)
 psf_photon = tel.ApplyPixelResponse.pixel_response * jr.poisson(jr.PRNGKey(5), psfs)
 data = psf_photon + BG_noise
 
@@ -140,8 +106,12 @@ model = model.set(zernikes, np.zeros(len(zern_basis)))
 # Set the flat fiel to uniform
 model = model.set(flatfield, np.ones((det_npix, det_npix)))
 
+# Initial PSFs
+initial_psfs = model.model()
+
 # Save models and data
 p.dump(tel, open(paths.data / "instrument.p", 'wb'))
 p.dump(source, open(paths.data / "source.p", 'wb'))
 np.save(paths.data / "data", data)
+np.save(paths.data / "initial_psfs", initial_psfs)
 p.dump(model, open(paths.data / 'model.p', 'wb'))

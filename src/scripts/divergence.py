@@ -1,36 +1,12 @@
-# Core jax
-import jax
 import jax.numpy as np
 import jax.random as jr
-
-# Optimisation
+from jax.scipy.stats import poisson
 import equinox as eqx
 import optax
-
-# Optics
 import dLux as dl
-from dLux.utils import arcseconds_to_radians as a2r
-from dLux.utils import radians_to_arcseconds as r2a
-
-# Paths
 import paths
-
-# Pickle
-# import pickle as p
 import dill as p
-
-# Plotting/visualisation
-import matplotlib.pyplot as plt
-# from tqdm.notebook import tqdm
 from tqdm import tqdm
-
-# %matplotlib inline
-plt.rcParams['image.cmap'] = 'inferno'
-plt.rcParams["font.family"] = "serif"
-plt.rcParams["image.origin"] = 'lower'
-plt.rcParams['figure.dpi'] = 120
-
-
 
 # Define wavelengths
 wavels = 1e-9 * np.linspace(545, 645, 3)
@@ -113,12 +89,11 @@ def make_images(model, key):
 
 @eqx.filter_vmap
 def initialise_models(model):
-    # model = model.add(positions, 1.*det_pixsize*jr.normal(jr.PRNGKey(0),  (2,)))
-    model = model.add(positions, 1.*det_pixsize)
+    model = model.add(positions, 1.*det_pixsize*jr.normal(jr.PRNGKey(0),  (2,)))
+    # model = model.add(positions, 1.*det_pixsize)
 
     # Multiply the fluxes by small random values
-    # model = model.multiply(fluxes, 1 + 0.1*jr.normal(jr.PRNGKey(1), (1,)))
-    model = model.multiply(fluxes, 1.1)
+    model = model.multiply(fluxes, 1 + 0.1*jr.normal(jr.PRNGKey(1), (1,)))
 
     # Set the zernike coefficients to zero
     model = model.set(zernikes, np.zeros(len(zern_basis)))
@@ -134,13 +109,12 @@ flux_ratios = fluxes_in/fluxes_in[0]
 tels = make_instruments(tel, fluxes_in)
 psfs = evaluate_ensemble(tels)
 data = make_images(tels, np.ones(len(fluxes_in), dtype=int))
-
-
-
 models = initialise_models(tels)
 
+
+
 # Optimisation hyper parameters
-b1 = .7 # Momentum -> Higer = more momentum
+b1 = .75 # Momentum -> Higer = more momentum
 # b2 = 0.5 # Acceleration -> Higer = more momentum
 
 # Position
@@ -153,8 +127,6 @@ pos_sched = optax.piecewise_constant_schedule(init_value=pos_lr*1e-8,
 pos_optimiser   = optax.adam(pos_sched, b1=b1)
 
 # Flux
-# flux_lr = 1e3*flux_ratios[:, None]* np.ones(models.get(fluxes).shape)
-# flux_lr = 0.5e3*flux_ratios[:, None]* np.ones(models.get(fluxes).shape)
 flux_lr = 0.5e3*flux_ratios * np.ones(models.get(fluxes).shape)
 flux_start, flux_stop, flux_restart = 0, 50, 75
 flux_sched = optax.piecewise_constant_schedule(init_value=flux_lr*1e-8,
@@ -178,18 +150,14 @@ FF_sched = optax.piecewise_constant_schedule(init_value=ff_lr*1e-8,
 FF_optimiser = optax.adam(FF_sched, b1=b1)
 
 optimisers = [pos_optimiser, flux_optimiser, coeff_optimiser, FF_optimiser]
-
-
 optim, opt_state, args = models.get_optimiser(parameters, optimisers, get_args=True)
-
 
 def log_prior(model, ff_mean=1., ff_std=0.05):
     return 0.5*(np.square((ff_mean - model.get(flatfield))/ff_std)).sum()
 
 def log_like(model, data):
     psfs = np.maximum(model.model(), 1e-8)
-    return -np.sum(jax.scipy.stats.poisson.logpmf(data, psfs))
-
+    return -np.sum(poisson.logpmf(data, psfs))
 
 @eqx.filter_vmap
 @eqx.filter_jit
@@ -197,11 +165,8 @@ def log_like(model, data):
 def loss_fn(model, data):
     return log_prior(model) + log_like(model, data)
 
-
-# %%time
-losses, grads = loss_fn(models, data) # Compile
-print("Initial Losses: {}".format(losses))
-
+# Compile
+losses, grads = loss_fn(models, data) 
 
 losses_out, models_out = [], []
 with tqdm(range(100),desc='Gradient Descent') as t:
