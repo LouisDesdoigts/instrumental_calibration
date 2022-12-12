@@ -102,6 +102,9 @@ data_tile = np.tile(data, [len(models_out), 1, 1])
 in_mask_tiled = np.where(data_tile >= thresh)
 
 # calculate residuals
+tel = p.load(open(paths.data / 'instrument.p', 'rb'))
+pix_response = tel.get(flatfield)
+flatfields_found = np.array([model.get(flatfield) for model in models_out])
 pr_residuals = pix_response[in_mask] - flatfields_found[-1][in_mask]
 
 # for correlation plot
