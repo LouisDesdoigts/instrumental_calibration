@@ -172,7 +172,7 @@ This new framework enables high dimensional optimization and inference in data a
 % High precision astronomy is limited by systematics introduced by the optics and detector
 At the vanguard of space-based astronomical imaging, photometry, and spectroscopy, imaging precision is limited by systematics introduced by aberrations in the optics and noise processes in the detector. While problems are ubiquitous in astronomy, we are motivated by several core examples. In exoplanet direct imaging, we want to achieve high resolution and high contrast simultaneously with instruments like JWST Coronagraphy \cite{Girard2022}, Aperture Masking \cite{Sivaramakrishnan2022}, or Kernel Phase \cite{Martinache2010,Kammerer2022} modes. The astrometric mission Toliman \cite{tuthill2018} aims to measure precise relative positions of the binary stars $\alpha$~Centauri~AB to reveal the gravitational influence of unseen planets; this will require micro-arcsecond, micro-pixel astrometric precision. We may also want to perform high precision photometry, whether with dedicated missions like \textit{Kepler} \cite{Borucki2010} and TESS \cite{Ricker2015}, or as ancillary science with Toliman. 
 
-In each case, we face serious limitations from an imperfect knowledge of the \ac{prf} -- the map of the intra-pixel and inter-pixel variations in detector sensitivity; and also of the \ac{psf} -- the diffraction-limited pattern by which light from a point source like a starspreads across a detector.
+In each case, we face serious limitations from an imperfect knowledge of the \ac{prf} -- the map of the intra-pixel and inter-pixel variations in detector sensitivity; and also of the \ac{psf} -- the diffraction-limited pattern by which light from a point source like a star spreads across a detector.
 
 In this series of papers, we present a new software package, \dlux, designed for fitting high-dimensional parametrized physical optics models to astronomical data. By using the Python library \textsc{Jax}\cite{jax}, we obtain \ac{gpu} hardware acceleration, as well as autodiff\cite{Margossian2018} features that enable high-dimensional optimization and inference with gradient descent or \ac{hmc}. In the present paper, we focus on the particular problem of estimating the \ac{prf} and \ac{psf} simultaneously - i.e. joint flat field calibration and phase retrieval. In Paper II, we will show how autodiff enables improvements to hardware \textit{design}, directly calculating and optimizing the Fisher information and therefore fundamental figures of merit of an optical system end-to-end. We make \dlux available as open-source software on GitHub\footnote{\href{https://github.com/LouisDesdoigts/dLux}{github.com/LouisDesdoigts/dLux}}, and encourage interested readers to use and contribute to this package as a community resource. This paper has been compiled using ShowYourWork \cite{Luger2021}, so that all figures link to the code used to produce them.
 
@@ -246,11 +246,11 @@ We believe that \dlux fills a unique role in this ecosystem as the only fully-ge
 
 \begin{figure*}
     \centering
-    % \includegraphics[width=\textwidth]{figures/optics.pdf}
-    \includegraphics[width=\textwidth]{figs/optics.pdf}
+    \includegraphics[width=\textwidth]{figures/optics.pdf}
+    % \includegraphics[width=\textwidth]{figs/optics.pdf}
     \caption{Summary of the optical configuration. Left panel: The top plot show the \ac{opd} of the pupil at the aperture of the telescope. The binary values create a half-wave step at the mean observation wavelength. The bottom plot shows the resulting large single-star \ac{psf} without aberrations applied. Middle panel: The top plot shows the total \ac{opd} of the pupil with the optical aberrations applied using low-order Zernike polynomials that is used to generate the data. The bottom plot shows the resulting single-star \ac{psf} with the aberrations applied. Clearly these aberrations have a large effect on the \ac{psf} and would make recovering information very difficult without appropriate calibration. Right panel: The top plot shows the histogram of the PRF that is applied in the focal plane. These values have a large spread and would greatly affect any results without calibration. The bottom plot shows the full PRF across the whole detector, with a small zoomed region used to show the fine detail that can not be seen when examining the full detector.}
     \label{fig:optics}
-    % \script{gen_optics.py}
+    \script{plot_optics.py}
 \end{figure*}
 
 
@@ -363,10 +363,10 @@ The optical propagation algorithm employs two-sided matrix Fourier transforms \c
 
 \begin{figure*}
     \centering
-    \includegraphics[width=\textwidth]{figs/aberrations.pdf}
+    \includegraphics[width=\textwidth]{figures/aberrations.pdf}
     \caption{Recovery of the optical aberrations after optimisation. Left: the amplitudes of the Zernike polynomial coefficients, with the top section showing the correlation plot of the true and recovered values, and the bottom showing the individual residuals. Middle and right: the true total \ac{opd} and the residuals generated by these values respectively. The error bars are the 1-$\sigma$ deviations calculated from the covariance Hessian matrix marginalised over positions, fluxes and aberrations.}
     \label{fig:aberrations}
-    % \script{gen_aberrations.py}
+    \script{plot_aberrations.py}
 \end{figure*}
 
 \begin{figure*}
