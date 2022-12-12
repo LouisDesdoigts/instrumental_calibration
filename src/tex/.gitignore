@@ -1,2 +1,4 @@
 # Don't track TeX temporaries
 *latexindent*
+
+.ipynb_checkpoints

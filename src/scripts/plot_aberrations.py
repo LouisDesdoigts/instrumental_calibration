@@ -81,6 +81,11 @@ true_coeff = tel.get(zernikes)
 found_coeff = models_out[-1].get(zernikes)
 index = np.arange(len(true_coeff))+4
 
+Nzern = len(true_coeff)
+errs = np.diag(np.load('cov_mat.npy'))**0.5
+zerr = errs[-Nzern:]
+# print(zerr)
+
 plt.figure(figsize=(15, 4))
 plt.suptitle("Optical Aberrations", size=15)
 
@@ -95,7 +100,8 @@ fig1.add_axes(ax2)
 
 
 plt.title("Zernike Coefficients (nm)")
-ax2.scatter(true_coeff*1e9, found_coeff*1e9)
+# ax2.scatter(true_coeff*1e9, found_coeff*1e9)
+ax2.errorbar(true_coeff*1e9, found_coeff*1e9, yerr=zerr*1e9, fmt='o', capsize=5)
 
 ax2.set_xticks([])
 ax2.set_ylabel("Recovered")
@@ -112,7 +118,8 @@ ax2.plot(vals, vals, c='k', alpha=0.5)
 ax2.set_xlim(xlims)
 ax2.set_ylim(ylims)
 
-ax.scatter(true_coeff*1e9, (true_coeff - found_coeff)*1e9)
+# ax.scatter(true_coeff*1e9, (true_coeff - found_coeff)*1e9)
+ax.errorbar(true_coeff*1e9, (true_coeff - found_coeff)*1e9, yerr=zerr*1e9, fmt='o', capsize=5)
 # ax.scatter(true_coeff, (true_coeff - found_coeff)/true_coeff)
 ax.axhline(0, c='k')
 ax.set_ylabel("Residuals")
@@ -167,3 +174,4 @@ cbar.set_label("OPD (nm)")
 
 plt.tight_layout()
 plt.savefig(paths.figures / "aberrations.pdf", dpi=300)
+

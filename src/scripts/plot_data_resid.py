@@ -31,46 +31,9 @@ plt.rcParams['figure.dpi'] = 120
 
 # Load model
 tel = p.load(open(paths.data / 'instrument.p', 'rb'))
+model = p.load(open(paths.data / 'model.p', 'rb'))
 source = p.load(open(paths.data / 'source.p', 'rb'))
-
-# Define Params
-positions = 'MultiPointSource.position'
-fluxes = 'MultiPointSource.flux'
-zernikes = 'ApplyBasisOPD.coefficients'
-flatfield = 'ApplyPixelResponse.pixel_response'
-parameters = [positions, fluxes, zernikes, flatfield]
-
-det_pixsize = tel.get("AngularMFT.pixel_scale_out")
-det_npix = tel.get("AngularMFT.npixels_out")
-nzern = len(tel.get(zernikes))
-Nstars = len(source.get('flux'))
-
-# Add small random values to the positions
-model = tel.add(positions, 2.5*det_pixsize*jr.normal(jr.PRNGKey(0),  (Nstars, 2)))
-
-# Multiply the fluxes by small random values
-model = model.multiply(fluxes, 1 + 0.1*jr.normal(jr.PRNGKey(0), (Nstars,)))
-
-# Set the zernike coefficients to zero
-model = model.set(zernikes, np.zeros(nzern))
-
-# Set the flat fiel to uniform
-model = model.set(flatfield, np.ones((det_npix, det_npix)))
-
-
-# Save optimisation model
-p.dump(model, open(paths.data / 'model.p', 'wb'))
-
-# Observe!
-bg_val = tel.AddConstant.value
-psfs = tel.observe() - bg_val
-print(psfs.sum(0).mean())
-
-
-# Apply some noise to the PSF Background noise
-BG_noise = 2.5*jr.normal(jr.PRNGKey(0), psfs.shape) + bg_val
-data = jr.poisson(jr.PRNGKey(0), psfs) + BG_noise
-np.save(paths.data / "data", data)
+data = np.load(paths.data / "data.npy")
 
 plt.figure(figsize=(15, 4.5))
 plt.suptitle("Data and Residuals", size=15)
@@ -78,6 +41,7 @@ plt.suptitle("Data and Residuals", size=15)
 ax1 = plt.subplot(1, 3, 1)
 plt.title("Sample Data")
 plt.imshow(data[0]*1e-3)
+# plt.imshow(data*1e-3)
 plt.xlabel("Pixels")
 plt.ylabel("Pixels")
 divider = make_axes_locatable(ax1)
@@ -90,6 +54,7 @@ initital_psfs = model.observe()
 ax2 = plt.subplot(1, 3, 2)
 plt.title("Initial Residual")
 plt.imshow((initital_psfs[0] - data[0])*1e-3)
+# plt.imshow((initital_psfs[0] - data)*1e-3)
 # plt.imshow(data[0]/initital_psfs[0])
 plt.xlabel("Pixels")
 plt.ylabel("Pixels")
@@ -106,6 +71,7 @@ ax3 = plt.subplot(1, 3, 3)
 plt.title("Final Residual")
 # plt.title("Final Fractional Residual")
 plt.imshow((final_psfs[0] - data[0])*1e-3)
+# plt.imshow((final_psfs[0] - data)*1e-3)
 # plt.imshow(data[0]/final_psfs[0])
 plt.xlabel("Pixels")
 plt.ylabel("Pixels")
@@ -116,7 +82,10 @@ cbar.set_label("Counts $x10^3$")
 
 # inset axes....
 axins = ax3.inset_axes([0.5, 0.5, 0.45, 0.45])
+# axins = ax3.inset_axes([0.05, 0.05, 0.045, 0.045])
+
 axins.imshow((final_psfs[0] - data[0])*1e-3)
+# axins.imshow((final_psfs[0] - data)*1e-3)
 # axins.imshow(data[0]/final_psfs[0])
 # sub region of the original image
 axins.set_xlim(400, 430)

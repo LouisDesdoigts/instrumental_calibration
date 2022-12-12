@@ -68,14 +68,64 @@ pix_response = tel.get(flatfield)
 # Plot
 # calculate the mask where there was enough flux to infer the flat field
 # thresh = 2500
-# thresh = 1000
-thresh = 500
+thresh = 1000
+# thresh = 500
+
+data_sort = np.sort(data[0].flatten())
+nhists = 4
+size = len(data_sort)//nhists
+
+threshes = [0]
+for i in range(nhists):
+    threshes.append(data_sort[size*i])
+threshes.append(data_sort[-1] + 1)
+
+print(threshes)
+
+# threshes = np.array([0, 2500, 5000, 7500, 10000, 1e6])
+
+data_flat = data[0].flatten()
+indexes = []
+for i in range(len(threshes)-1):
+    low = np.where(data_flat >= threshes[i])[0]
+    high = np.where(data_flat < threshes[i+1])[0]
+    indexes.append(np.intersect1d(low, high))
+    # intersects.append(len(np.intersect1d(low, high)))
+    # print(len(np.intersect1d(low, high)))
+
+# intersects = np.array(intersects)
+# print()
+# print(intersects.sum())
+# print(len(data_flat))
+
+    # print(threshes[i])
+    # print(np.where(data_flat >= threshes[i]))
+    # print(np.where((data_flat >= threshes[i]) and (data_flat < threshes[i+1])))
+    # print()
+
+prf_flat = (pix_response - flatfields_found[-1]).flatten()
+
+# prf_flat = pix_response.flatten()
+for i in range(len(indexes)):
+    # print(len(indexes[i]))
+    lab = "{} - {}".format(int(threshes[i]), int(threshes[i+1]))
+    plt.hist(prf_flat[indexes[i]], bins=50, alpha=0.85, label=lab)
+plt.legend()
+plt.xlim(-0.2, 0.2)
+plt.savefig(paths.figures / "hists.pdf", dpi=300)
+print("Done hists")
+
+
 fmask = data.mean(0) >= thresh
+# fmask = data >= thresh
 
 out_mask = np.where(data.mean(0) < thresh)
+# out_mask = np.where(data < thresh)
 in_mask = np.where(data.mean(0) >= thresh)
+# in_mask = np.where(data >= thresh)
 
 data_tile = np.tile(data.mean(0), [len(models_out), 1, 1])
+# data_tile = np.tile(data, [len(models_out), 1, 1])
 in_mask_tiled = np.where(data_tile >= thresh)
 
 # calculate residuals
@@ -87,6 +137,7 @@ found_pr_masked = flatfields_found[-1].at[out_mask].set(1)
 
 # FF Scatter Plot
 data_sum = data.sum(0) # [flux_mask]
+# data_sum = data
 colours = data_sum.flatten()
 ind = np.argsort(colours)
 colours = colours[ind]
@@ -106,15 +157,9 @@ masked_error = np.abs(pr_res).mean(-1)
 plt.figure(figsize=(10, 4))
 plt.suptitle("Pixel Response Function Recovery", size=15)
 
-# plt.subplot(2, 3, (1,2))
-# plt.title("Pixel Response")
-# plt.xlabel("Epochs")
-# plt.ylabel("Mean Sensitivity Error")
-# plt.plot(masked_error)
-# plt.axhline(0, c='k', alpha=0.5)
-
 # FF Scatter Plot
 data_sum = data.sum(0)
+# data_sum = data
 colours = data_sum.flatten()
 ind = np.argsort(colours)
 colours = colours[ind]
@@ -139,15 +184,14 @@ ax.set_xlim(xlims)
 ax.set_ylim(ylims)
 plt.plot(np.linspace(0.7, 1.3), np.linspace(0.7, 1.3), c='k', alpha=0.5)
 
+# print(pix_response.shape)
+# print(flatfields_found[-1].shape)
+# print(thresh_indx.shape)
+
 thresh_indx = np.where(fmask)
 res = (pix_response - flatfields_found[-1])[thresh_indx].flatten()
 
 ax2 = plt.subplot(1, 2, 2)
-# plt.plot(np.linspace(0.8, 1.2), np.linspace(0.8, 1.2), c='k', alpha=0.75)
-# plt.hist((pr_true_sort - pr_found_sort).flatten(), bins=25)
-# plt.hist((pr_true_sort - pr_found_sort).flatten(), bins=51)
-# plt.hist((pr_true_sort - pr_found_sort).flatten(), bins=101)
-# plt.hist((pr_true_sort - pr_found_sort).flatten(), bins=201)
 plt.hist(res, bins=51)
 plt.title("PRF Residual Histogram")
 plt.ylabel("Counts")
@@ -156,52 +200,8 @@ plt.xlabel("Residual")
 xlim = np.abs(np.array(ax2.get_xlim())).max()
 ax2.set_xlim(-xlim, xlim)
 
-plt.xticks(np.linspace(-0.1, 0.1, 5))
+# plt.xticks(np.linspace(-0.1, 0.1, 5))
 
-# for index, label in enumerate(ax2.xaxis.get_ticklabels()):
-#     if (index+1) % 2 != 0:
-#         label.set_visible(False)
-#     print(index, label, label.get_visible())
-
-# for index, label in enumerate(ax2.xaxis.get_ticklabels()):
-#     print(index, label, label.get_visible())
-
-# for index, label in enumerate(ax2.xaxis.get_ticklabels()):
-#     if (index+1) % 2 != 0:
-#         label.set_visible(False)
-
-
-
-# plt.subplot(1, 3, 3)
-# plt.hist(np.abs(res).flatten(), bins=100)
-# plt.semilogx()
-# plt.title("PRF Residual Histogram")
-# plt.ylabel("Counts")
-# plt.xlabel("Residual")
-
-# plt.subplot(2, 3, 4)
-# plt.title("True Pixel Response")
-# plt.xlabel("Pixels")
-# plt.ylabel("Pixels")
-# plt.imshow(true_pr_masked)
-# plt.colorbar()
-
-# vmin = np.min(pix_response)
-# vmax = np.max(pix_response)
-
-# plt.subplot(2, 3, 5)
-# plt.title("Found Pixel Response")
-# plt.xlabel("Pixels")
-# plt.ylabel("Pixels")
-# plt.imshow(found_pr_masked, vmin=vmin, vmax=vmax)
-# plt.colorbar()
-
-# plt.subplot(2, 3, 6)
-# plt.title("Pixel Response Residual")
-# plt.xlabel("Pixels")
-# plt.ylabel("Pixels")
-# plt.imshow(true_pr_masked - found_pr_masked, vmin=-0.2, vmax=0.2)
-# plt.colorbar()
 
 plt.tight_layout()
 plt.savefig(paths.figures / "ff.pdf", dpi=300)
