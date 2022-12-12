@@ -332,7 +332,7 @@ This operation is then performed over 15 stars with uniform 100\,nm bandpass spe
     \includegraphics[width=\textwidth]{figures/data_resid.pdf}
     \caption{Left: single image of the full four that is used to create the full data set. This image has had both photon and detector noise applied. By eye it is clearly difficult to disentangle the astrophysical information. The large number of overlapping \ac{psf}s is chosen in order to spread light across the majority of the detector so that we encode the PRF information for as much of the detector as possible. Middle: the residual of this single image from the data and the initial uncalibrated model. Clearly these residuals are large, showing that there is a large amount of calibration required. Right: this same residual after the model has been optimised. The residual values are much smaller and at the noise floor. A small zoomed region is shown so that the individual pixel-level residuals can be seen.}
     \label{fig:data_residual}
-    \script{plot_gen_data_resid.py}
+    \script{plot_data_resid.py}
 \end{figure*}
 
 
@@ -358,7 +358,7 @@ The optical propagation algorithm employs two-sided matrix Fourier transforms \c
     % \includegraphics[width=0.8\textwidth]{figs/astro_params.pdf}
     \caption{Left: recovery of the individual RA-Dec positions of each star, with the top section showing the correlation between the true and recovered values in units of arcseconds. The bottom section shows the individual residuals for each. Clearly these parameters have been well recovered through the optimisation. Right: the recovery of the flux parameters in units of photons. The top section shows the correlation between the true and recovered values, and the bottom showing the resulting residuals. The error bars are the 1-$\sigma$ deviations calculated from the covariance Hessian matrix marginalised over positions, fluxes and aberrations.}
     \label{fig:astro_params}
-    \script{plot_gen_astro_params.py}
+    \script{plot_astro_params.py}
 \end{figure*}
 
 \begin{figure*}
