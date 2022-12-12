@@ -127,7 +127,7 @@ pos_sched = optax.piecewise_constant_schedule(init_value=pos_lr*1e-8,
 pos_optimiser   = optax.adam(pos_sched, b1=b1)
 
 # Flux
-flux_lr = 0.5e3*flux_ratios * np.ones(models.get(fluxes).shape)
+flux_lr = 0.5e3*flux_ratios[:, None] * np.ones(models.get(fluxes).shape)
 flux_start, flux_stop, flux_restart = 0, 50, 75
 flux_sched = optax.piecewise_constant_schedule(init_value=flux_lr*1e-8,
                              boundaries_and_scales={flux_start   : int(1e8),
@@ -168,6 +168,7 @@ def loss_fn(model, data):
 # Compile
 losses, grads = loss_fn(models, data) 
 
+# Optimise
 losses_out, models_out = [], []
 with tqdm(range(100),desc='Gradient Descent') as t:
     for i in t:

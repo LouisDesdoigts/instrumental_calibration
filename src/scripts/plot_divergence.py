@@ -9,7 +9,6 @@ plt.rcParams["font.family"] = "serif"
 plt.rcParams["image.origin"] = 'lower'
 plt.rcParams['figure.dpi'] = 120
 
-
 positions = 'PointSource.position'
 fluxes = 'PointSource.flux'
 zernikes = 'ApplyBasisOPD.coefficients'
@@ -25,23 +24,13 @@ r_res = np.hypot(x_res, y_res)
 
 # Fluxes
 final_fluxes = models_out[-1].get(fluxes)
-res = np.abs(fluxes_in - final_fluxes)
+res = np.abs(fluxes_in - final_fluxes[:, 0])
 l1 = res/fluxes_in
 xs = fluxes_in
 diffs = (models_out[-1].get(fluxes) - models_out[-2].get(fluxes))/fluxes_in
-
 sigma = 1
 
 plt.figure(figsize=(10, 4))
-
-# plt.subplot(1, 2, 1)
-# plt.title("Final Flux Error")
-# plt.scatter(fluxes_in, res)
-# plt.errorbar(fluxes_in, res, yerr=sigma*fluxes_in**0.5, fmt='o')
-# plt.semilogx()
-# plt.axhline(0, c='k')
-# plt.xlabel("True")
-# plt.ylabel("Recovered")
 plt.subplot(1, 2, 1)
 plt.title("Positional Residual")
 plt.scatter(fluxes_in, r2a(r_res))
@@ -49,7 +38,6 @@ plt.semilogx()
 plt.axhline(0, c='k')
 plt.xlabel("Flux")
 plt.ylabel("Positional Residual (arcseconds)")
-
 
 plt.subplot(1, 2, 2)
 plt.title("Fractional Flux Error $|(\hat{f} - f)/\hat{f}|$")
@@ -60,5 +48,4 @@ plt.xlabel("Flux")
 plt.ylabel("Fractional Error")
 
 plt.tight_layout()
-# plt.savefig("divergence")
 plt.savefig(paths.figures / "divergence.pdf", dpi=300)

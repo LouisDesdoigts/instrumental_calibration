@@ -25,7 +25,6 @@ aberrated_pupil = pupil + opd
 
 # FF
 FF = tel.ApplyPixelResponse.pixel_response
-
 psf_tel = tel.set(['detector'], [None])
 
 # Get psfs
@@ -73,7 +72,6 @@ cbar.set_label("Probability")
 
 plt.subplot(2, 3, 3)
 plt.title("Pixel Response Distribution")
-# plt.hist(FF.flatten(), bins=25)
 plt.hist(FF.flatten(), bins=50)
 plt.ylabel("Counts")
 plt.xlabel("Relative Sensitivity")
@@ -83,7 +81,6 @@ plt.title("Pixel Response")
 plt.imshow(FF)
 plt.xlabel("Pixels")
 plt.ylabel("Pixels")
-# fig.colorbar(im, ax)
 cbar = plt.colorbar()
 cbar.set_label("Sensitivity")
 

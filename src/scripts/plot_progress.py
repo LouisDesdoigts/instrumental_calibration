@@ -24,11 +24,6 @@ flatfield = 'ApplyPixelResponse.pixel_response'
 parameters = [positions, fluxes, zernikes, flatfield]
 
 # Get parameters
-# nepochs = len(models_out)
-# psfs_out = models_out[-1].observe()
-# psfs_out = models_out[-1].model()
-
-
 positions_found  = np.array([model.get(positions) for model in models_out])
 fluxes_found     = np.array([model.get(fluxes)    for model in models_out])
 zernikes_found   = np.array([model.get(zernikes)  for model in models_out])
@@ -43,7 +38,6 @@ scaler = 1e3
 positions_residuals = tel.get(positions) - positions_found
 r_residuals_rads = np.hypot(positions_residuals[:, :, 0], positions_residuals[:, :, 1])
 r_residuals = r2a(r_residuals_rads)
-
 
 # Positions
 arcsec = r2a(1)
@@ -88,9 +82,7 @@ plt.plot(np.square(flatfield_residuals).sum((-1, -2)))
 plt.axhline(0, c='k', alpha=0.5)
 
 # FF Scatter Plot
-# colours = data.sum(0).flatten()
 colours = data.flatten()
-# colours = data.flatten()
 ind = np.argsort(colours)
 colours = colours[ind]
 
