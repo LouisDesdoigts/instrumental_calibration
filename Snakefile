@@ -4,7 +4,8 @@ rule compute_answer:
         'src/data/optimise/models_out.p'
         'src/data/calc_errors/cov_mat.npy'
     output:
-        "src/tex/output/opd_in.txt"
+        "src/tex/output/rms_opd_resid.txt"
+        "src/tex/output/rms_opd_in.txt"
     conda:
         "environment.yml"
     script:
