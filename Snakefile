@@ -38,6 +38,18 @@ rule divergence:
     script:
         "src/scripts/divergence.py"
 
+rule plot_FF:
+    input:
+        'src/data/optimise/true_prf_sorted.npy'
+        'src/data/optimise/found_prf_sorted.npy'
+        'src/data/optimise/colours.npy'
+        "src/data/optimise/pixel_response_resid_counts.npy"
+        "src/data/optimise/pixel_response_resid_bins.npy"
+    conda:
+        "environment.yml"
+    script:
+        "src/scripts/plot_FF.py"
+
 rule astro_params:
     input:
         'src/data/make_model_and_data/instrument.p'
