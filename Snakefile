@@ -1,6 +1,8 @@
 rule compute_answer:
     output:
         "src/tex/output/opd_in.txt"
+    conda:
+        "environment.yml"
     script:
         "src/scripts/gen_aberrations.py"
 
@@ -32,6 +34,8 @@ rule optimise:
         # "src/data/pixel_response_resid_counts.npy"
         # "src/data/pixel_response_resid_bins.npy"
         # "src/data/final_psfs.npy"
+    conda:
+        "environment.yml"
     cache:
         True
     script:
@@ -41,6 +45,8 @@ rule calc_errors:
     output:
         directory("src/data/calc_errors")
         # "src/data/cov_mat.npy"
+    conda:
+        "environment.yml"
     cache:
         True
     script:
@@ -51,6 +57,8 @@ rule divergence:
         directory("src/data/divergence")
         # "src/data/divergence_fluxes_in.npy"
         # "src/data/divergence_models_out.p"
+    conda:
+        "environment.yml"
     cache:
         True
     script:
