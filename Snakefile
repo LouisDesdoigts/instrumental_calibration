@@ -1,16 +1,3 @@
-rule compute_answer:
-    input:
-        'src/data/make_model_and_data/instrument.p'
-        'src/data/optimise/models_out.p'
-        'src/data/calc_errors/cov_mat.npy'
-    output:
-        "src/tex/output/rms_opd_resid.txt"
-        "src/tex/output/rms_opd_in.txt"
-    conda:
-        "environment.yml"
-    script:
-        "src/scripts/gen_aberrations.py"
-
 rule make_model_and_data:
     output:
         directory("src/data/make_model_and_data")
@@ -51,4 +38,15 @@ rule divergence:
     script:
         "src/scripts/divergence.py"
 
-
+rule compute_answer:
+    input:
+        'src/data/make_model_and_data/instrument.p'
+        'src/data/optimise/models_out.p'
+        'src/data/calc_errors/cov_mat.npy'
+    output:
+        "src/tex/output/rms_opd_resid.txt"
+        "src/tex/output/rms_opd_in.txt"
+    conda:
+        "environment.yml"
+    script:
+        "src/scripts/gen_aberrations.py"
