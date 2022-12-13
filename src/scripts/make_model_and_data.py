@@ -10,7 +10,7 @@ import paths
 '''Create Optics, Detector, Source & Instrument'''
 # Define wavelengths
 wavels = 1e-9 * np.linspace(545, 645, 3)
-np.save(paths.data / 'wavelengths.npy', wavels)
+np.save(paths.data / 'make_model_and_data/wavelengths.npy', wavels)
 
 # Basic Optical Parameters
 aperture = 0.5
@@ -45,8 +45,8 @@ optics = dl.Optics(optical_layers)
 pix_response = 1 + 0.05*jr.normal(jr.PRNGKey(1), [det_npix, det_npix])
 # pix_response = np.ones([det_npix, det_npix])
 counts, bins = np.histogram(pix_response.flatten(), bins=50)
-np.save(paths.data / "pixel_response_counts.npy", counts)
-np.save(paths.data / "pixel_response_bins.npy", bins)
+np.save(paths.data / "make_model_and_data/pixel_response_counts.npy", counts)
+np.save(paths.data / "make_model_and_data/pixel_response_bins.npy", bins)
 
 # Detector Noise
 bg_mean = 10
@@ -116,12 +116,12 @@ initial_psfs = model.model()
 psf_tel = tel.set(['detector'], [None])
 psf = psf_tel.set(zernikes, np.zeros(len(tel.get(zernikes)))).model(source=dl.PointSource(wavelengths=wavels))
 aberrated_psf = psf_tel.model(source=dl.PointSource(wavelengths=wavels))
-np.save(paths.data / "plain_psf", psf)
-np.save(paths.data / "aberrated_psf", aberrated_psf)
+np.save(paths.data / "make_model_and_data/plain_psf", psf)
+np.save(paths.data / "make_model_and_data/aberrated_psf", aberrated_psf)
 
 # Save models and data
-p.dump(tel, open(paths.data / "instrument.p", 'wb'))
-p.dump(source, open(paths.data / "source.p", 'wb'))
-np.save(paths.data / "data", data)
-np.save(paths.data / "initial_psfs", initial_psfs)
-p.dump(model, open(paths.data / 'model.p', 'wb'))
+p.dump(tel, open(paths.data / "make_model_and_data/instrument.p", 'wb'))
+p.dump(source, open(paths.data / "make_model_and_data/source.p", 'wb'))
+np.save(paths.data / "make_model_and_data/data", data)
+np.save(paths.data / "make_model_and_data/initial_psfs", initial_psfs)
+p.dump(model, open(paths.data / 'make_model_and_data/model.p', 'wb'))

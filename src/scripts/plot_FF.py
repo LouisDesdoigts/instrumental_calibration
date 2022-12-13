@@ -110,9 +110,9 @@ plt.rcParams['figure.dpi'] = 120
 # pr_true_sort = pr_true_flat[ind]
 # pr_found_sort = pr_found_flat[ind]
 
-pr_true_sort = np.load(paths.data / 'true_prf_sorted.npy')
-pr_found_sort = np.load(paths.data / 'found_prf_sorted.npy')
-colours = np.load(paths.data / 'colours.npy')
+pr_true_sort = np.load(paths.data / 'optimise/true_prf_sorted.npy')
+pr_found_sort = np.load(paths.data / 'optimise/found_prf_sorted.npy')
+colours = np.load(paths.data / 'optimise/colours.npy')
 
 plt.figure(figsize=(10, 4))
 plt.suptitle("Pixel Response Function Recovery", size=15)
@@ -136,8 +136,8 @@ plt.plot(np.linspace(0.7, 1.3), np.linspace(0.7, 1.3), c='k', alpha=0.5)
 # thresh_indx = np.where(fmask)
 # res = (pix_response - flatfields_found[-1])[thresh_indx].flatten()
 
-counts = np.load(paths.data / "pixel_response_resid_counts.npy")
-bins = np.load(paths.data / "pixel_response_resid_bins.npy")
+counts = np.load(paths.data / "optimise/pixel_response_resid_counts.npy")
+bins = np.load(paths.data / "optimise/pixel_response_resid_bins.npy")
 ax2 = plt.subplot(1, 2, 2)
 # plt.hist(res, bins=51)
 plt.hist(bins[:-1], bins, weights=counts)

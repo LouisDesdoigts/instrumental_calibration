@@ -11,11 +11,11 @@ plt.rcParams['figure.dpi'] = 120
 
 
 # Load model
-tel = p.load(open(paths.data / 'instrument.p', 'rb'))
-models_out = p.load(open(paths.data / 'models_out.p', 'rb'))
-losses = np.load(paths.data / 'losses.npy')
-data = np.load(paths.data / "data.npy")
-psfs_out = np.load(paths.data / "final_psfs.npy")
+tel = p.load(open(paths.data / 'make_model_and_data/instrument.p', 'rb'))
+models_out = p.load(open(paths.data / 'optimise/models_out.p', 'rb'))
+losses = np.load(paths.data / 'optimise/losses.npy')
+data = np.load(paths.data / "make_model_and_data/data.npy")
+# psfs_out = np.load(paths.data / "optimise/final_psfs.npy")
 
 positions = 'MultiPointSource.position'
 fluxes = 'MultiPointSource.flux'

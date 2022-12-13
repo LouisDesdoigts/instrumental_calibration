@@ -8,8 +8,8 @@ import dill as p
 from tqdm import tqdm
 
 # Load model
-model = p.load(open(paths.data / 'model.p', 'rb'))
-data = np.load(paths.data / "data.npy")
+model = p.load(open(paths.data / 'make_model_and_data/model.p', 'rb'))
+data = np.load(paths.data / "make_model_and_data/data.npy")
 
 positions = 'MultiPointSource.position'
 fluxes = 'MultiPointSource.flux'
@@ -85,12 +85,12 @@ with tqdm(range(100), desc='Gradient Descent') as t:
         t.set_description("Log Loss: {:.3f}".format(np.log10(loss))) # update the progress bar
 
 # Save model and losses
-np.save(paths.data / 'losses', np.array(losses))
-p.dump(models_out, open(paths.data / "models_out.p", 'wb'))
+np.save(paths.data / 'optimise/losses', np.array(losses))
+p.dump(models_out, open(paths.data / "optimise/models_out.p", 'wb'))
 
 # Get final PSFs
 psfs_out = models_out[-1].model()
-np.save(paths.data / 'final_psfs', psfs_out)
+np.save(paths.data / 'optimise/final_psfs', psfs_out)
 
 # Pre calc FF errors
 thresh = 1000
@@ -102,7 +102,7 @@ data_tile = np.tile(data, [len(models_out), 1, 1])
 in_mask_tiled = np.where(data_tile >= thresh)
 
 # calculate residuals
-tel = p.load(open(paths.data / 'instrument.p', 'rb'))
+tel = p.load(open(paths.data / 'make_model_and_data/instrument.p', 'rb'))
 pix_response = tel.get(flatfield)
 flatfields_found = np.array([model.get(flatfield) for model in models_out])
 pr_residuals = pix_response[in_mask] - flatfields_found[-1][in_mask]
@@ -141,13 +141,13 @@ pr_found_flat = found_pr_masked.flatten()
 pr_true_sort = pr_true_flat[ind]
 pr_found_sort = pr_found_flat[ind]
 
-np.save(paths.data / 'true_prf_sorted', pr_true_sort)
-np.save(paths.data / 'found_prf_sorted', pr_found_sort)
-np.save(paths.data / 'colours', colours)
+np.save(paths.data / 'optimise/true_prf_sorted', pr_true_sort)
+np.save(paths.data / 'optimise/found_prf_sorted', pr_found_sort)
+np.save(paths.data / 'optimise/colours', colours)
 
 # Histogram
 thresh_indx = np.where(fmask)
 res = (pix_response - flatfields_found[-1])[thresh_indx].flatten()
 counts, bins = np.histogram(res.flatten(), bins=51)
-np.save(paths.data / "pixel_response_resid_counts.npy", counts)
-np.save(paths.data / "pixel_response_resid_bins.npy", bins)
+np.save(paths.data / "optimise/pixel_response_resid_counts.npy", counts)
+np.save(paths.data / "optimise/pixel_response_resid_bins.npy", bins)

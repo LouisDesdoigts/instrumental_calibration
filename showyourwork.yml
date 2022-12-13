@@ -25,6 +25,9 @@ dag:
 
 # Externally-hosted datasets, e.g. on Zenodo
 datasets:
+# 10.5072/zenodo.1135586:
+#   contents:
+
   # 10.5281/zenodo.6468327:
   #   contents:
   #     TOI640b.json: src/data/TOI640b.json

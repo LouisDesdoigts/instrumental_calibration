@@ -11,8 +11,8 @@ plt.rcParams["image.origin"] = 'lower'
 plt.rcParams['figure.dpi'] = 120
 
 # Load model
-tel = p.load(open(paths.data / 'instrument.p', 'rb'))
-wavels = np.load(paths.data / 'wavelengths.npy')
+tel = p.load(open(paths.data / 'make_model_and_data/instrument.p', 'rb'))
+wavels = np.load(paths.data / 'make_model_and_data/wavelengths.npy')
 
 # Pupil
 throughput = tel.CompoundAperture.get_aperture(npixels=tel.get('CreateWavefront.npixels'))
@@ -32,8 +32,8 @@ FF = tel.ApplyPixelResponse.pixel_response
 # psf = psf_tel.set(zernikes, np.zeros(len(tel.get(zernikes)))).model(source=dl.PointSource(wavelengths=wavels))
 # aberrated_psf = psf_tel.model(source=dl.PointSource(wavelengths=wavels))
 
-psf = np.load(paths.data / "plain_psf.npy")
-aberrated_psf = np.load(paths.data / "aberrated_psf.npy")
+psf = np.load(paths.data / "make_model_and_data/plain_psf.npy")
+aberrated_psf = np.load(paths.data / "make_model_and_data/aberrated_psf.npy")
 
 cmap = get_cmap("inferno").copy()
 cmap.set_bad('k',1.)
@@ -73,8 +73,8 @@ plt.ylabel("Pixels")
 cbar = plt.colorbar()
 cbar.set_label("Probability")
 
-counts = np.load(paths.data / "pixel_response_counts.npy")
-bins = np.load(paths.data / "pixel_response_bins.npy")
+counts = np.load(paths.data / "make_model_and_data/pixel_response_counts.npy")
+bins = np.load(paths.data / "make_model_and_data/pixel_response_bins.npy")
 plt.subplot(2, 3, 3)
 plt.title("Pixel Response Distribution")
 plt.hist(bins[:-1], bins, weights=counts)

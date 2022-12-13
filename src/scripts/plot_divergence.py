@@ -14,8 +14,8 @@ fluxes = 'PointSource.flux'
 zernikes = 'ApplyBasisOPD.coefficients'
 flatfield = 'ApplyPixelResponse.pixel_response'
 
-fluxes_in = np.load(paths.data / "divergence_fluxes_in.npy")
-models_out = p.load(open(paths.data / 'divergence_models_out.p', 'rb'))
+fluxes_in = np.load(paths.data / "divergence/divergence_fluxes_in.npy")
+models_out = p.load(open(paths.data / 'divergence/divergence_models_out.p', 'rb'))
 
 # Positions
 positions_found = np.array([model.get(positions) for model in models_out])

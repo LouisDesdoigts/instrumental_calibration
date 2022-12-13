@@ -7,10 +7,10 @@ import dill as p
 from tqdm import tqdm
 
 # Load model
-tel = p.load(open(paths.data / 'instrument.p', 'rb'))
-models_out = p.load(open(paths.data / 'models_out.p', 'rb'))
-losses = np.load(paths.data / 'losses.npy')
-data = np.load(paths.data / "data.npy")
+tel = p.load(open(paths.data / 'make_model_and_data/instrument.p', 'rb'))
+models_out = p.load(open(paths.data / 'optimise/models_out.p', 'rb'))
+losses = np.load(paths.data / 'optimise/losses.npy')
+data = np.load(paths.data / "make_model_and_data/data.npy")
 
 positions = 'MultiPointSource.position'
 fluxes = 'MultiPointSource.flux'
@@ -48,7 +48,7 @@ fn = lambda X: dl.utils.poisson_log_likelihood(X, data, model, perturb, 'model')
 H = hessian(fn, X)
 cov_mat = -np.linalg.inv(H)
 
-np.save(paths.data / 'cov_mat', cov_mat)
+np.save(paths.data / 'calc_errors/cov_mat', cov_mat)
 
 
 

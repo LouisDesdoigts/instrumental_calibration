@@ -104,7 +104,7 @@ def initialise_models(model):
     return model
 
 fluxes_in = 10**np.linspace(3, 6, 20)
-np.save(paths.data / "divergence_fluxes_in", fluxes_in)
+np.save(paths.data / "divergence/divergence_fluxes_in", fluxes_in)
 flux_ratios = fluxes_in/fluxes_in[0]
 tels = make_instruments(tel, fluxes_in)
 psfs = evaluate_ensemble(tels)
@@ -182,4 +182,4 @@ with tqdm(range(100),desc='Gradient Descent') as t:
 losses_out = np.array(losses_out)
 
 # Save models
-p.dump(models_out, open(paths.data / 'divergence_models_out.p', 'wb'))
+p.dump(models_out, open(paths.data / 'divergence/divergence_models_out.p', 'wb'))
