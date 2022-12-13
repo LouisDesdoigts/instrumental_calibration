@@ -75,6 +75,9 @@ dependencies:
     - src/scripts/make_model_and_data.py
     - src/scripts/optimise.py
     - src/scripts/calc_errors.py
+    - "src/data/make_model_and_data/instrument.p"
+    - "src/data/optimise/models_out.p"
+    - "src/data/calc_errors/cov_mat.npy"
   src/tex/ms.tex:
     - src/tex/spieman.cls
   
