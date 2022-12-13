@@ -38,6 +38,18 @@ rule divergence:
     script:
         "src/scripts/divergence.py"
 
+rule astro_params:
+    input:
+        'src/data/make_model_and_data/instrument.p'
+        'src/data/optimise/models_out.p'
+        'src/data/calc_errors/cov_mat.npy'
+    output:
+        directory("src/data/astro_params")
+    conda:
+        "environment.yml"
+    script:
+        "src/scripts/astro_params.py"
+
 rule compute_answer:
     input:
         'src/data/make_model_and_data/instrument.p'
