@@ -50,15 +50,15 @@ rule astro_params:
     script:
         "src/scripts/astro_params.py"
 
-rule compute_answer:
-    input:
-        'src/data/make_model_and_data/instrument.p'
-        'src/data/optimise/models_out.p'
-        'src/data/calc_errors/cov_mat.npy'
-    output:
-        "src/tex/output/rms_opd_resid.txt"
-        "src/tex/output/rms_opd_in.txt"
-    conda:
-        "environment.yml"
-    script:
-        "src/scripts/plot_aberrations.py"
+# rule compute_answer:
+#     input:
+#         'src/data/make_model_and_data/instrument.p'
+#         'src/data/optimise/models_out.p'
+#         'src/data/calc_errors/cov_mat.npy'
+#     output:
+#         "src/tex/output/rms_opd_resid.txt"
+#         "src/tex/output/rms_opd_in.txt"
+#     conda:
+#         "environment.yml"
+#     script:
+#         "src/scripts/plot_aberrations.py"
