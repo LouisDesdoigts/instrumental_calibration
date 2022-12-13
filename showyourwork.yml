@@ -71,6 +71,10 @@ dependencies:
     # - src/data/optimise/losses.npy
     # - src/data/make_model_and_data/data.npy
     - src/scripts/optimise.py
+  src/scripts/plot_aberrations.py:
+    - src/scripts/make_model_and_data.py
+    - src/scripts/optimise.py
+    - src/scripts/calc_errors.py
   src/tex/ms.tex:
     - src/tex/spieman.cls
   
