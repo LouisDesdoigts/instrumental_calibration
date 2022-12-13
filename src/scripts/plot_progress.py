@@ -98,6 +98,6 @@ plt.scatter(pr_true_flat, pr_found_flat, c=colours, rasterized=True)
 plt.colorbar()
 
 plt.tight_layout()
-plt.savefig('test')
+# plt.savefig('test')
 
 plt.savefig(paths.figures / "progress.pdf", dpi=300)

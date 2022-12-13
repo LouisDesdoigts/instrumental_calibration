@@ -16,7 +16,7 @@ models_out = p.load(open(paths.data / 'optimise/models_out.p', 'rb'))
 # data = np.load(paths.data / "make_model_and_data/data.npy")
 # psfs_out = np.load(paths.data / "optimise/final_psfs.npy")
 
-# Adding null line to attempt zenodo rerun
+# Adding null line to attempt zenodo re-run
 
 positions = 'MultiPointSource.position'
 fluxes = 'MultiPointSource.flux'

@@ -49,4 +49,4 @@ rule compute_answer:
     conda:
         "environment.yml"
     script:
-        "src/scripts/gen_aberrations.py"
+        "src/scripts/plot_aberrations.py"
