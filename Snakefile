@@ -1,4 +1,8 @@
 rule compute_answer:
+    input:
+        'src/data/make_model_and_data/instrument.p'
+        'src/data/optimise/models_out.p'
+        'src/data/calc_errors/cov_mat.npy'
     output:
         "src/tex/output/opd_in.txt"
     conda:
