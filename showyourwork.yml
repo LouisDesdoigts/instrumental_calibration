@@ -55,27 +55,29 @@ datasets:
 # Custom file dependencies
 dependencies:
   src/scripts/optimise.py:
-    - src/data/make_model_and_data/pixel_response_counts.npy
-    - src/data/make_model_and_data/pixel_response_bins.npy
-    - src/data/make_model_and_data/plain_psf.npy
-    - src/data/make_model_and_data/aberrated_psf.npy
-    - src/data/make_model_and_data/data.npy
-    - src/data/make_model_and_data/initial_psfs.npy
-    - src/data/make_model_and_data/instrument.p
-    - src/data/make_model_and_data/source.p
-    - src/data/make_model_and_data/model.p
+    # - src/data/make_model_and_data/pixel_response_counts.npy
+    # - src/data/make_model_and_data/pixel_response_bins.npy
+    # - src/data/make_model_and_data/plain_psf.npy
+    # - src/data/make_model_and_data/aberrated_psf.npy
+    # - src/data/make_model_and_data/data.npy
+    # - src/data/make_model_and_data/initial_psfs.npy
+    # - src/data/make_model_and_data/instrument.p
+    # - src/data/make_model_and_data/source.p
+    # - src/data/make_model_and_data/model.p
+    - src/scripts/make_model_and_data.py
   src/scripts/calc_errors.py:
-    - src/data/make_model_and_data/instrument.p
-    - src/data/optimise/models_out.p
-    - src/data/optimise/losses.npy
-    - src/data/make_model_and_data/data.npy
+    # - src/data/make_model_and_data/instrument.p
+    # - src/data/optimise/models_out.p
+    # - src/data/optimise/losses.npy
+    # - src/data/make_model_and_data/data.npy
+    - src/scripts/optimise.py
   src/tex/ms.tex:
     - src/tex/spieman.cls
   
-  src/scripts/gen_aberrations.py:
-   - src/data/make_model_and_data/instrument.p
-   - src/data/optimise/models_out.p
-   - src/data/calc_errors/cov_mat.npy
+  # src/scripts/gen_aberrations.py:
+  #  - src/data/make_model_and_data/instrument.p
+  #  - src/data/optimise/models_out.p
+  #  - src/data/calc_errors/cov_mat.npy
 
 
 # Name of the `.tex` manuscript and corresponding `.pdf` article
