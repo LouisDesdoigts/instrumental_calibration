@@ -50,7 +50,7 @@ rule plot_FF:
     script:
         "src/scripts/plot_FF.py"
 
-rule astro_params:
+rule plot_astro_params:
     input:
         "src/data/make_model_and_data/instrument.p"
         "src/data/optimise/models_out.p"
@@ -60,7 +60,7 @@ rule astro_params:
     script:
         "src/scripts/plot_astro_params.py"
 
-rule aberrations:
+rule plot_aberrations:
     input:
         "src/data/make_model_and_data/instrument.p"
         "src/data/optimise/models_out.p"
@@ -70,7 +70,7 @@ rule aberrations:
     script:
         "src/scripts/plot_aberrations.py"
 
-rule data_resid:
+rule plot_data_resid:
     input:
         "src/data/make_model_and_data/data.npy"
         "src/data/optimise/final_psfs.npy"
@@ -80,7 +80,7 @@ rule data_resid:
     script:
         "src/scripts/plot_data_resid.py"
 
-rule optics:
+rule plot_optics:
     input:
         "src/data/make_model_and_data/instrument.p"
         "src/data/make_model_and_data/wavelengths.npy"
@@ -93,7 +93,7 @@ rule optics:
     script:
         "src/scripts/plot_optics.py"
 
-rule divergence:
+rule plot_divergence:
     input:
         "src/data/divergence/divergence_fluxes_in.npy"
         "src/data/divergence/divergence_models_out.p"
