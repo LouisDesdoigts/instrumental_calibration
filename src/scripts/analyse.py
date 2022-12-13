@@ -1,10 +1,10 @@
 import os
 import time as t
 
-t0 = t.time()
-print("\nRunning plot_progress.py")
-os.system('python plot_progress.py')
-print("Done in {:.2f} seconds".format(t.time() - t0))
+# t0 = t.time()
+# print("\nRunning plot_progress.py")
+# os.system('python plot_progress.py')
+# print("Done in {:.2f} seconds".format(t.time() - t0))
 
 t0 = t.time()
 print("\nRunning plot_astro_params.py")

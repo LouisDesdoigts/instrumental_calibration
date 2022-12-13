@@ -22,7 +22,6 @@ dag:
   # ignore_files:
   #  - src/tex/orcid-ID.png
 
-
 # Externally-hosted datasets, e.g. on Zenodo
 datasets:
 10.5072/zenodo.1135586:
@@ -72,6 +71,12 @@ dependencies:
     - src/data/make_model_and_data/data.npy
   src/tex/ms.tex:
     - src/tex/spieman.cls
+  
+  src/scripts/gen_aberrations.py:
+   - src/data/make_model_and_data/instrument.p
+   - src/data/optimise/models_out.p
+   - src/data/calc_errors/cov_mat.npy
+
 
 # Name of the `.tex` manuscript and corresponding `.pdf` article
 ms_name: ms
