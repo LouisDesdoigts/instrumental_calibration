@@ -24,33 +24,33 @@ dag:
 
 # Externally-hosted datasets, e.g. on Zenodo
 datasets:
-10.5072/zenodo.1135586:
-  contents:
-    pixel_response_counts.npy: src/data/make_model_and_data/pixel_response_counts.npy
-    pixel_response_bins.npy: src/data/make_model_and_data/pixel_response_bins.npy
-    plain_psf.npy: src/data/make_model_and_data/plain_psf.npy
-    aberrated_psf.npy: src/data/make_model_and_data/aberrated_psf.npy
-    data.npy: src/data/make_model_and_data/data.npy
-    initial_psfs.npy: src/data/make_model_and_data/initial_psfs.npy
-    instrument.p: src/data/make_model_and_data/instrument.p
-    source.p: src/data/make_model_and_data/source.p
-    model.p: src/data/make_model_and_data/model.p
+  10.5072/zenodo.1135586:
+    contents:
+      pixel_response_counts.npy: src/data/make_model_and_data/pixel_response_counts.npy
+      pixel_response_bins.npy: src/data/make_model_and_data/pixel_response_bins.npy
+      plain_psf.npy: src/data/make_model_and_data/plain_psf.npy
+      aberrated_psf.npy: src/data/make_model_and_data/aberrated_psf.npy
+      data.npy: src/data/make_model_and_data/data.npy
+      initial_psfs.npy: src/data/make_model_and_data/initial_psfs.npy
+      instrument.p: src/data/make_model_and_data/instrument.p
+      source.p: src/data/make_model_and_data/source.p
+      model.p: src/data/make_model_and_data/model.p
 
-    losses.npy: src/data/optimise/losses.npy
-    models_out.p: src/data/optimise/models_out.p
-    true_prf_sorted.npy: src/data/optimise/true_prf_sorted.npy
-    found_prf_sorted.npy: src/data/optimise/found_prf_sorted.npy
-    colours.npy: src/data/optimise/colours.npy
-    pixel_response_resid_counts.npy: src/data/optimise/pixel_response_resid_counts.npy
-    pixel_response_resid_bins.npy: src/data/optimise/pixel_response_resid_bins.npy
-    final_psfs.npy: src/data/optimise/final_psfs.npy
+      losses.npy: src/data/optimise/losses.npy
+      models_out.p: src/data/optimise/models_out.p
+      true_prf_sorted.npy: src/data/optimise/true_prf_sorted.npy
+      found_prf_sorted.npy: src/data/optimise/found_prf_sorted.npy
+      colours.npy: src/data/optimise/colours.npy
+      pixel_response_resid_counts.npy: src/data/optimise/pixel_response_resid_counts.npy
+      pixel_response_resid_bins.npy: src/data/optimise/pixel_response_resid_bins.npy
+      final_psfs.npy: src/data/optimise/final_psfs.npy
 
-    cov_mat.npy: src/data/calc_error/cov_mat.npy
+      cov_mat.npy: src/data/calc_error/cov_mat.npy
 
-    divergence_fluxes_in.npy: src/data/divergence/divergence_fluxes_in.npy
-    divergence_models_out.p: src/data/divergence/divergence_models_out.p
+      divergence_fluxes_in.npy: src/data/divergence/divergence_fluxes_in.npy
+      divergence_models_out.p: src/data/divergence/divergence_models_out.p
 
-  #     TOI640b.json: src/data/TOI640b.json
+    #     TOI640b.json: src/data/TOI640b.json
 
 # Custom file dependencies
 dependencies:
