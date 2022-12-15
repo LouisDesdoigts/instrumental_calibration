@@ -9,6 +9,10 @@ rule make_model_and_data:
         "src/scripts/make_model_and_data.py"
 
 rule optimise:
+    input:
+        "src/data/make_model_and_data/model.p"
+        "src/data/make_model_and_data/data.npy"
+        "src/data/make_model_and_data/instrument.p"
     output:
         directory("src/data/optimise")
     conda:
@@ -19,6 +23,11 @@ rule optimise:
         "src/scripts/optimise.py"
 
 rule calc_errors:
+    input:
+        "src/data/make_model_and_data/instrument.p"
+        "src/data/optimise/models_out.p"
+        "src/data/optimise/losses.npy"
+        "src/data/make_model_and_data/data.npy"
     output:
         directory("src/data/calc_errors")
     conda:
@@ -45,6 +54,8 @@ rule plot_FF:
         "src/data/optimise/colours.npy"
         "src/data/optimise/pixel_response_resid_counts.npy"
         "src/data/optimise/pixel_response_resid_bins.npy"
+    output:
+        "src/tex/figures/FF.pdf"
     conda:
         "environment.yml"
     script:
@@ -52,9 +63,12 @@ rule plot_FF:
 
 rule plot_astro_params:
     input:
-        "src/data/make_model_and_data/instrument.p"
-        "src/data/optimise/models_out.p"
         "src/data/calc_errors/cov_mat.npy"
+        "src/data/optimise/positions_found.npy"
+        "src/data/optimise/fluxes_found.npy"
+        "src/data/optimise/zernikes_found.npy"
+    output:
+        "src/tex/figures/astro_params.pdf"
     conda:
         "environment.yml"
     script:
@@ -62,9 +76,12 @@ rule plot_astro_params:
 
 rule plot_aberrations:
     input:
-        "src/data/make_model_and_data/instrument.p"
-        "src/data/optimise/models_out.p"
         "src/data/calc_errors/cov_mat.npy"
+        "src/data/optimise/positions_found.npy"
+        "src/data/optimise/fluxes_found.npy"
+        "src/data/optimise/zernikes_found.npy"
+    output:
+        "src/tex/figures/aberrations.pdf"
     conda:
         "environment.yml"
     script:
@@ -75,6 +92,8 @@ rule plot_data_resid:
         "src/data/make_model_and_data/data.npy"
         "src/data/optimise/final_psfs.npy"
         "src/data/make_model_and_data/initial_psfs.npy"
+    output:
+        "src/tex/figures/data_resid.pdf"
     conda:
         "environment.yml"
     script:
@@ -88,6 +107,8 @@ rule plot_optics:
         "src/data/make_model_and_data/aberrated_psf.npy"
         "src/data/make_model_and_data/pixel_response_counts.npy"
         "src/data/make_model_and_data/pixel_response_bins.npy"
+    output:
+        "src/tex/figures/optics.pdf"
     conda:
         "environment.yml"
     script:
@@ -97,6 +118,8 @@ rule plot_divergence:
     input:
         "src/data/divergence/divergence_fluxes_in.npy"
         "src/data/divergence/divergence_models_out.p"
+    output:
+        "src/tex/figures/divergence.pdf"
     conda:
         "environment.yml"
     script:

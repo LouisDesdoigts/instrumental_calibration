@@ -22,10 +22,14 @@ zernikes = 'ApplyBasisOPD.coefficients'
 flatfield = 'ApplyPixelResponse.pixel_response'
 parameters = [positions, fluxes, zernikes, flatfield]
 
-positions_found  = np.array([model.get(positions) for model in models_out])
-fluxes_found     = np.array([model.get(fluxes)    for model in models_out])
-zernikes_found   = np.array([model.get(zernikes)  for model in models_out])
-flatfields_found = np.array([model.get(flatfield) for model in models_out])
+# positions_found  = np.array([model.get(positions) for model in models_out])
+# fluxes_found     = np.array([model.get(fluxes)    for model in models_out])
+# zernikes_found   = np.array([model.get(zernikes)  for model in models_out])
+# flatfields_found = np.array([model.get(flatfield) for model in models_out])
+positions_found = np.load(paths.data / "optimise/positions_found.npy")
+fluxes_found = np.load(paths.data / "optimise/fluxes_found.npy")
+zernikes_found = np.load(paths.data / "optimise/zernikes_found.npy")
+flatfields_found = np.load(paths.data / "optimise/flatfields_found.npy")
 
 # Get the residuals
 coeff_residuals = tel.get(zernikes) - zernikes_found

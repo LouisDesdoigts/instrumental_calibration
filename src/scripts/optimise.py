@@ -151,3 +151,21 @@ res = (pix_response - flatfields_found[-1])[thresh_indx].flatten()
 counts, bins = np.histogram(res.flatten(), bins=51)
 np.save(paths.data / "optimise/pixel_response_resid_counts.npy", counts)
 np.save(paths.data / "optimise/pixel_response_resid_bins.npy", bins)
+
+# Parameters out
+# positions = 'MultiPointSource.position'
+# fluxes = 'MultiPointSource.flux'
+# zernikes = 'ApplyBasisOPD.coefficients'
+# flatfield = 'ApplyPixelResponse.pixel_response'
+# parameters = [positions, fluxes, zernikes, flatfield]
+
+# # Get parameters
+positions_found  = np.array([model.get(positions) for model in models_out])
+fluxes_found     = np.array([model.get(fluxes)    for model in models_out])
+zernikes_found   = np.array([model.get(zernikes)  for model in models_out])
+flatfields_found = np.array([model.get(flatfield) for model in models_out])
+
+np.save(paths.data / "optimise/positions_found.npy", positions_found)
+np.save(paths.data / "optimise/fluxes_found.npy", fluxes_found)
+np.save(paths.data / "optimise/zernikes_found.npy", zernikes_found)
+np.save(paths.data / "optimise/flatfields_found.npy", flatfields_found)
