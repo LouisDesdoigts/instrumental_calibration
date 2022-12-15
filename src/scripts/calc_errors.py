@@ -14,8 +14,9 @@ except FileExistsError:
 
 # Load model
 tel = p.load(open(paths.data / 'make_model_and_data/instrument.p', 'rb'))
-models_out = p.load(open(paths.data / 'optimise/models_out.p', 'rb'))
-losses = np.load(paths.data / 'optimise/losses.npy')
+# models_out = p.load(open(paths.data / 'optimise/models_out.p', 'rb'))
+final_model = p.load(open(paths.data / 'optimise/final_model.p', 'rb'))
+# losses = np.load(paths.data / 'optimise/losses.npy')
 data = np.load(paths.data / "make_model_and_data/data.npy")
 
 positions = 'MultiPointSource.position'
@@ -48,7 +49,8 @@ def hessian(f, x):
     return np.stack([hvp(e) for e in basis]).reshape(x.shape + x.shape)
 
 # model = tel.set(['observation'], [None])
-model = tel
+# model = tel
+model = final_model
 fn = lambda X: dl.utils.poisson_log_likelihood(X, data, model, perturb, 'model')
 
 H = hessian(fn, X)

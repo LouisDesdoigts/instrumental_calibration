@@ -84,6 +84,8 @@ rule plot_aberrations:
         rules.optimise.output,
     output:
         "src/tex/figures/aberrations.pdf"
+        "src/tex/output/rms_opd_resid.txt"
+        "src/tex/output/rms_opd_in.txt"
     conda:
         "environment.yml"
     script:

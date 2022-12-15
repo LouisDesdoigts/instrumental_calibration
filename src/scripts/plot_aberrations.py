@@ -13,7 +13,7 @@ plt.rcParams['figure.dpi'] = 120
 
 # Load model
 tel = p.load(open(paths.data / 'make_model_and_data/instrument.p', 'rb'))
-models_out = p.load(open(paths.data / 'optimise/models_out.p', 'rb'))
+# models_out = p.load(open(paths.data / 'optimise/models_out.p', 'rb'))
 # losses = np.load(paths.data / 'optimise/losses.npy')
 # data = np.load(paths.data / "make_model_and_data/data.npy")
 # psfs_out = np.load(paths.data / "optimise/final_psfs.npy")
@@ -47,7 +47,8 @@ r_residuals = r2a(r_residuals_rads)
 # Plot
 # OPDs
 true_opd = tel.ApplyBasisOPD.get_total_opd()
-opds_found = np.array([model.ApplyBasisOPD.get_total_opd() for model in models_out])
+
+opds_found = np.array([tel.set(zernikes, z).ApplyBasisOPD.get_total_opd() for z in zernikes_found])
 found_opd = opds_found[-1]
 opd_residuls = true_opd - opds_found
 opd_rmse_nm = 1e9*np.mean(opd_residuls**2, axis=(-1,-2))**0.5
@@ -57,7 +58,8 @@ vmax = np.max(np.array([true_opd, found_opd]))
 
 # Coefficients
 true_coeff = tel.get(zernikes)
-found_coeff = models_out[-1].get(zernikes)
+# found_coeff = models_out[-1].get(zernikes)
+found_coeff = zernikes_found[-1]
 index = np.arange(len(true_coeff))+4
 
 Nzern = len(true_coeff)
