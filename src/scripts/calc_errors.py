@@ -6,6 +6,12 @@ import paths
 import dill as p
 from tqdm import tqdm
 
+import os
+try:
+    os.mkdir(paths.data / "calc_errors")
+except FileExistsError:
+    pass
+
 # Load model
 tel = p.load(open(paths.data / 'make_model_and_data/instrument.p', 'rb'))
 models_out = p.load(open(paths.data / 'optimise/models_out.p', 'rb'))

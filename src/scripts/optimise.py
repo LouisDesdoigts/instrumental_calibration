@@ -7,6 +7,12 @@ import paths
 import dill as p
 from tqdm import tqdm
 
+import os
+try:
+    os.mkdir(paths.data / "optimise")
+except FileExistsError:
+    pass
+
 # Load model
 model = p.load(open(paths.data / 'make_model_and_data/model.p', 'rb'))
 data = np.load(paths.data / "make_model_and_data/data.npy")

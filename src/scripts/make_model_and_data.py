@@ -7,6 +7,12 @@ from dLux.utils import arcseconds_to_radians as a2r
 import dill as p
 import paths
 
+import os
+try:
+    os.mkdir(paths.data / "make_model_and_data")
+except FileExistsError:
+    pass
+
 '''Create Optics, Detector, Source & Instrument'''
 # Define wavelengths
 wavels = 1e-9 * np.linspace(545, 645, 3)
@@ -22,7 +28,8 @@ sampling_rate = 20
 det_pixsize = dl.utils.get_pixel_scale(sampling_rate, wavels.mean(), aperture)
 
 # Load mask
-raw_mask = dl.utils.phase_to_opd(np.load("mask.npy"), wavels.mean())
+# raw_mask = dl.utils.phase_to_opd(np.load("mask.npy"), wavels.mean())
+raw_mask = dl.utils.phase_to_opd(np.load(paths.data / "mask.npy"), wavels.mean())
 mask = dl.utils.scale_array(raw_mask, wf_npix, 0)
 
 # Zernike Basis

@@ -8,7 +8,11 @@ import paths
 import dill as p
 from tqdm import tqdm
 
-# Adding null line for zenodo re-run
+import os
+try:
+    os.mkdir(paths.data / "divergence")
+except FileExistsError:
+    pass
 
 # Define wavelengths
 wavels = 1e-9 * np.linspace(545, 645, 3)
@@ -23,7 +27,8 @@ sampling_rate = 3
 det_pixsize = dl.utils.get_pixel_scale(sampling_rate, wavels.mean(), aperture)
 
 # Load mask
-raw_mask = dl.utils.phase_to_opd(np.load("mask.npy"), wavels.mean())
+# raw_mask = dl.utils.phase_to_opd(np.load("mask.npy"), wavels.mean())
+raw_mask = dl.utils.phase_to_opd(np.load(paths.data / "mask.npy"), wavels.mean())
 mask = dl.utils.scale_array(raw_mask, wf_npix, 0)
 
 # Zernike Basis

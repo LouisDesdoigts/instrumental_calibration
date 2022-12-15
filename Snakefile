@@ -10,7 +10,7 @@ rule make_model_and_data:
 
 rule optimise:
     input:
-        rules.make_model_and_data.output
+        rules.make_model_and_data.output,
         # "src/data/make_model_and_data/model.p"
         # "src/data/make_model_and_data/data.npy"
         # "src/data/make_model_and_data/instrument.p"
@@ -25,8 +25,8 @@ rule optimise:
 
 rule calc_errors:
     input:
-        rules.make_model_and_data.output
-        rules.optimise.output
+        rules.make_model_and_data.output,
+        rules.optimise.output,
         # "src/data/make_model_and_data/instrument.p"
         # "src/data/optimise/models_out.p"
         # "src/data/optimise/losses.npy"
@@ -52,7 +52,7 @@ rule divergence:
 
 rule plot_optics:
     input:
-        rules.make_model_and_data.output
+        rules.make_model_and_data.output,
         # "src/data/make_model_and_data/instrument.p"
         # "src/data/make_model_and_data/wavelengths.npy"
         # "src/data/make_model_and_data/plain_psf.npy"
@@ -68,7 +68,7 @@ rule plot_optics:
 
 rule plot_FF:
     input:
-        rules.optimise.output
+        rules.optimise.output,
         # "src/data/optimise/true_prf_sorted.npy"
         # "src/data/optimise/found_prf_sorted.npy"
         # "src/data/optimise/colours.npy"
@@ -83,8 +83,8 @@ rule plot_FF:
 
 rule plot_astro_params:
     input:
-        rules.calc_errors.output
-        rules.optimise.output
+        rules.calc_errors.output,
+        rules.optimise.output,
         # "src/data/calc_errors/cov_mat.npy"
         # "src/data/optimise/positions_found.npy"
         # "src/data/optimise/fluxes_found.npy"
@@ -98,8 +98,8 @@ rule plot_astro_params:
 
 rule plot_aberrations:
     input:
-        rules.calc_errors.output
-        rules.optimise.output
+        rules.calc_errors.output,
+        rules.optimise.output,
         # "src/data/calc_errors/cov_mat.npy"
         # "src/data/optimise/positions_found.npy"
         # "src/data/optimise/fluxes_found.npy"
@@ -113,8 +113,8 @@ rule plot_aberrations:
 
 rule plot_data_resid:
     input:
-        rules.make_model_and_data.output
-        rules.optimise.output
+        rules.make_model_and_data.output,
+        rules.optimise.output,
         # "src/data/make_model_and_data/data.npy"
         # "src/data/optimise/final_psfs.npy"
         # "src/data/make_model_and_data/initial_psfs.npy"
@@ -127,7 +127,7 @@ rule plot_data_resid:
 
 rule plot_divergence:
     input:
-        rules.divergence.output
+        rules.divergence.output,
         # "src/data/divergence/divergence_fluxes_in.npy"
         # "src/data/divergence/divergence_models_out.p"
     output:
