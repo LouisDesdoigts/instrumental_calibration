@@ -84,8 +84,8 @@ rule plot_aberrations:
         rules.optimise.output,
     output:
         "src/tex/figures/aberrations.pdf"
-        "src/tex/output/rms_opd_resid.txt"
-        "src/tex/output/rms_opd_in.txt"
+        # "src/tex/output/rms_opd_resid.txt"
+        # "src/tex/output/rms_opd_in.txt"
     conda:
         "environment.yml"
     script:
@@ -124,3 +124,25 @@ rule plot_divergence:
 #         "environment.yml"
 #     script:
 #         "src/scripts/plot_aberrations.py"
+
+rule compute_rms_in:
+    input:
+        rules.calc_errors.output,
+        rules.optimise.output,
+    output:
+        "src/tex/output/rms_opd_in.txt"
+    conda:
+        "environment.yml"
+    script:
+        "src/scripts/plot_aberrations.py"
+
+rule compute_rms_resid:
+    input:
+        rules.calc_errors.output,
+        rules.optimise.output,
+    output:
+        "src/tex/output/rms_opd_resid.txt"
+    conda:
+        "environment.yml"
+    script:
+        "src/scripts/plot_aberrations.py"
