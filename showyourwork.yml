@@ -57,52 +57,64 @@ datasets:
 # Custom file dependencies
 dependencies:
   src/scripts/optimise.py:
-    - src/data/make_model_and_data/model.p
-    - src/data/make_model_and_data/data.npy
-    - src/data/make_model_and_data/instrument.p
+    # - src/data/make_model_and_data/model.p
+    # - src/data/make_model_and_data/data.npy
+    # - src/data/make_model_and_data/instrument.p
+    - src/data/make_model_and_data/
 
   src/scripts/calc_errors.py:
-    - src/data/make_model_and_data/instrument.p
-    - src/data/optimise/models_out.p
-    - src/data/optimise/losses.npy
-    - src/data/make_model_and_data/data.npy
+    - src/data/make_model_and_data/
+    - src/data/optimise/
+    # - src/data/make_model_and_data/instrument.p
+    # - src/data/optimise/models_out.p
+    # - src/data/optimise/losses.npy
+    # - src/data/make_model_and_data/data.npy
 
   src/scripts/plot_aberrations.py:
-    - src/data/calc_errors/cov_mat.npy
-    - src/data/optimise/positions_found.npy
-    - src/data/optimise/fluxes_found.npy
-    - src/data/optimise/zernikes_found.npy
+    - src/data/optimise/
+    - src/data/calc_errors/
+    # - src/data/calc_errors/cov_mat.npy
+    # - src/data/optimise/positions_found.npy
+    # - src/data/optimise/fluxes_found.npy
+    # - src/data/optimise/zernikes_found.npy
   
   src/scripts/plot_astro_params.py:
-    - src/data/calc_errors/cov_mat.npy
-    - src/data/optimise/positions_found.npy
-    - src/data/optimise/fluxes_found.npy
-    - src/data/optimise/zernikes_found.npy
+    - src/data/optimise/
+    - src/data/calc_errors/
+    # - src/data/calc_errors/cov_mat.npy
+    # - src/data/optimise/positions_found.npy
+    # - src/data/optimise/fluxes_found.npy
+    # - src/data/optimise/zernikes_found.npy
 
   src/scripts/plot_data_resid.py:
-    - src/data/make_model_and_data/data.npy
-    - src/data/optimise/final_psfs.npy
-    - src/data/make_model_and_data/initial_psfs.npy
+    - src/data/make_model_and_data/
+    - src/data/optimise/
+    # - src/data/make_model_and_data/data.npy
+    # - src/data/optimise/final_psfs.npy
+    # - src/data/make_model_and_data/initial_psfs.npy
 
   src/scripts/plot_divergence.py:
-    - src/data/divergence/divergence_fluxes_in.npy
-    - src/data/divergence/divergence_models_out.p
+    - src/data/divergence/
+    # - src/data/divergence/divergence_fluxes_in.npy
+    # - src/data/divergence/divergence_models_out.p
     # - src/data/optimise/positions_found.npy
 
   src/scripts/plot_FF.py:
-    - src/data/optimise/true_prf_sorted.npy
-    - src/data/optimise/found_prf_sorted.npy
-    - src/data/optimise/colours.npy
-    - src/data/optimise/pixel_response_resid_counts.npy
-    - src/data/optimise/pixel_response_resid_bins.npy
+    - src/data/optimise/
+    # - src/data/optimise/true_prf_sorted.npy
+    # - src/data/optimise/found_prf_sorted.npy
+    # - src/data/optimise/colours.npy
+    # - src/data/optimise/pixel_response_resid_counts.npy
+    # - src/data/optimise/pixel_response_resid_bins.npy
 
   src/scripts/plot_optics.py:
-    - src/data/make_model_and_data/instrument.p
-    - src/data/make_model_and_data/wavelengths.npy
-    - src/data/make_model_and_data/plain_psf.npy
-    - src/data/make_model_and_data/aberrated_psf.npy
-    - src/data/make_model_and_data/pixel_response_counts.npy
-    - src/data/make_model_and_data/pixel_response_bins.npy
+    - src/data/make_model_and_data/
+    # - src/data/make_model_and_data/instrument.p
+    # - src/data/make_model_and_data/wavelengths.npy
+    # - src/data/make_model_and_data/plain_psf.npy
+    # - src/data/make_model_and_data/aberrated_psf.npy
+    # - src/data/make_model_and_data/pixel_response_counts.npy
+    # - src/data/make_model_and_data/pixel_response_bins.npy
 
   src/tex/ms.tex:
     - src/tex/spieman.cls
