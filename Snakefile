@@ -1,4 +1,6 @@
 rule make_model_and_data:
+    input:
+        "src/data/mask.npy"
     output:
         directory("src/data/make_model_and_data/")
     conda:
@@ -11,9 +13,6 @@ rule make_model_and_data:
 rule optimise:
     input:
         rules.make_model_and_data.output,
-        # "src/data/make_model_and_data/model.p"
-        # "src/data/make_model_and_data/data.npy"
-        # "src/data/make_model_and_data/instrument.p"
     output:
         directory("src/data/optimise")
     conda:
@@ -27,10 +26,6 @@ rule calc_errors:
     input:
         rules.make_model_and_data.output,
         rules.optimise.output,
-        # "src/data/make_model_and_data/instrument.p"
-        # "src/data/optimise/models_out.p"
-        # "src/data/optimise/losses.npy"
-        # "src/data/make_model_and_data/data.npy"
     output:
         directory("src/data/calc_errors")
     conda:
@@ -41,6 +36,8 @@ rule calc_errors:
         "src/scripts/calc_errors.py"
 
 rule divergence:
+    input:
+        "src/data/mask.npy"
     output:
         directory("src/data/divergence")
     conda:
@@ -53,12 +50,6 @@ rule divergence:
 rule plot_optics:
     input:
         rules.make_model_and_data.output,
-        # "src/data/make_model_and_data/instrument.p"
-        # "src/data/make_model_and_data/wavelengths.npy"
-        # "src/data/make_model_and_data/plain_psf.npy"
-        # "src/data/make_model_and_data/aberrated_psf.npy"
-        # "src/data/make_model_and_data/pixel_response_counts.npy"
-        # "src/data/make_model_and_data/pixel_response_bins.npy"
     output:
         "src/tex/figures/optics.pdf"
     conda:
@@ -69,11 +60,6 @@ rule plot_optics:
 rule plot_FF:
     input:
         rules.optimise.output,
-        # "src/data/optimise/true_prf_sorted.npy"
-        # "src/data/optimise/found_prf_sorted.npy"
-        # "src/data/optimise/colours.npy"
-        # "src/data/optimise/pixel_response_resid_counts.npy"
-        # "src/data/optimise/pixel_response_resid_bins.npy"
     output:
         "src/tex/figures/FF.pdf"
     conda:
@@ -85,10 +71,6 @@ rule plot_astro_params:
     input:
         rules.calc_errors.output,
         rules.optimise.output,
-        # "src/data/calc_errors/cov_mat.npy"
-        # "src/data/optimise/positions_found.npy"
-        # "src/data/optimise/fluxes_found.npy"
-        # "src/data/optimise/zernikes_found.npy"
     output:
         "src/tex/figures/astro_params.pdf"
     conda:
@@ -100,10 +82,6 @@ rule plot_aberrations:
     input:
         rules.calc_errors.output,
         rules.optimise.output,
-        # "src/data/calc_errors/cov_mat.npy"
-        # "src/data/optimise/positions_found.npy"
-        # "src/data/optimise/fluxes_found.npy"
-        # "src/data/optimise/zernikes_found.npy"
     output:
         "src/tex/figures/aberrations.pdf"
     conda:
@@ -115,9 +93,6 @@ rule plot_data_resid:
     input:
         rules.make_model_and_data.output,
         rules.optimise.output,
-        # "src/data/make_model_and_data/data.npy"
-        # "src/data/optimise/final_psfs.npy"
-        # "src/data/make_model_and_data/initial_psfs.npy"
     output:
         "src/tex/figures/data_resid.pdf"
     conda:
@@ -128,8 +103,6 @@ rule plot_data_resid:
 rule plot_divergence:
     input:
         rules.divergence.output,
-        # "src/data/divergence/divergence_fluxes_in.npy"
-        # "src/data/divergence/divergence_models_out.p"
     output:
         "src/tex/figures/divergence.pdf"
     conda:

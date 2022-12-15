@@ -189,4 +189,10 @@ with tqdm(range(100),desc='Gradient Descent') as t:
 losses_out = np.array(losses_out)
 
 # Save models
-p.dump(models_out, open(paths.data / 'divergence/divergence_models_out.p', 'wb'))
+# p.dump(models_out, open(paths.data / 'divergence/divergence_models_out.p', 'wb'))
+
+positions_found  = np.array([model.get(positions) for model in models_out])
+fluxes_found = np.array([model.get(fluxes) for model in models_out])
+
+np.save(paths.data / "divergence/positions_found.npy", positions_found)
+np.save(paths.data / "divergence/fluxes_found.npy", fluxes_found)

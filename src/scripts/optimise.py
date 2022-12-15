@@ -92,7 +92,7 @@ with tqdm(range(100), desc='Gradient Descent') as t:
 
 # Save model and losses
 np.save(paths.data / 'optimise/losses', np.array(losses))
-p.dump(models_out, open(paths.data / "optimise/models_out.p", 'wb'))
+# p.dump(models_out, open(paths.data / "optimise/models_out.p", 'wb'))
 
 # Get final PSFs
 psfs_out = models_out[-1].model()
