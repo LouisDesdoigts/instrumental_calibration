@@ -10,10 +10,10 @@ plt.rcParams["image.origin"] = 'lower'
 plt.rcParams['figure.dpi'] = 120
 
 # Load model
-tel = p.load(open(paths.data / 'instrument.p', 'rb'))
-models_out = p.load(open(paths.data / 'models_out.p', 'rb'))
+tel = p.load(open(paths.data / 'make_model_and_data/instrument.p', 'rb'))
+# models_out = p.load(open(paths.data / 'models_out.p', 'rb'))
 # losses = np.load(paths.data / 'losses.npy')
-data = np.load(paths.data / "data.npy")
+data = np.load(paths.data / "make_model_and_data/data.npy")
 # psfs_out = np.load(paths.data / "final_psfs.npy")
 
 positions = 'MultiPointSource.position'
@@ -30,6 +30,9 @@ positions_found = np.load(paths.data / "optimise/positions_found.npy")
 fluxes_found = np.load(paths.data / "optimise/fluxes_found.npy")
 zernikes_found = np.load(paths.data / "optimise/zernikes_found.npy")
 flatfields_found = np.load(paths.data / "optimise/flatfields_found.npy")
+
+# colours = np.load(paths.data / 'optimise/colours.npy')
+# print(colours)
 
 # Get the residuals
 coeff_residuals = tel.get(zernikes) - zernikes_found
@@ -60,11 +63,22 @@ for i in range(len(threshes)-1):
     high = np.where(data_flat < threshes[i+1])[0]
     indexes.append(np.intersect1d(low, high))
 
+import matplotlib
+cmap = matplotlib.cm.get_cmap('inferno')
+
+vmin, vmax = data.min(), data.max()
 prf_flat = (pix_response - flatfields_found[-1]).flatten()
 
 for i in range(len(indexes)):
     lab = "{} - {}".format(int(threshes[i]), int(threshes[i+1]))
-    plt.hist(prf_flat[indexes[i]], bins=50, alpha=0.85, label=lab)
+
+    # mean = (threshes[i] + threshes[i+1])/2
+    mean = threshes[i+1]
+    mean_norm = (mean - vmin)/(vmax - vmin)
+    cols = cmap(mean_norm)[:3]
+
+    plt.hist(prf_flat[indexes[i]], bins=50, alpha=0.85, label=lab, color=cols)
+# cbar = plt.colorbar()
 plt.legend()
 plt.xlim(-0.2, 0.2)
 plt.savefig(paths.figures / "hists.pdf", dpi=300)

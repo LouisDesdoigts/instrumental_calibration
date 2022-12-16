@@ -1,7 +1,7 @@
 import jax.numpy as np
 from dLux.utils import radians_to_arcseconds as r2a
 import paths
-import dill as p
+import pickle as p
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
@@ -13,27 +13,15 @@ plt.rcParams['figure.dpi'] = 120
 
 # Load model
 tel = p.load(open(paths.data / 'make_model_and_data/instrument.p', 'rb'))
-# models_out = p.load(open(paths.data / 'optimise/models_out.p', 'rb'))
-# losses = np.load(paths.data / 'optimise/losses.npy')
-# data = np.load(paths.data / "make_model_and_data/data.npy")
-# psfs_out = np.load(paths.data / "optimise/final_psfs.npy")
+positions_found = np.load(paths.data / "optimise/positions_found.npy")
+fluxes_found = np.load(paths.data / "optimise/fluxes_found.npy")
+zernikes_found = np.load(paths.data / "optimise/zernikes_found.npy")
 
 positions = 'MultiPointSource.position'
 fluxes = 'MultiPointSource.flux'
 zernikes = 'ApplyBasisOPD.coefficients'
 flatfield = 'ApplyPixelResponse.pixel_response'
 parameters = [positions, fluxes, zernikes, flatfield]
-
-# # Get parameters
-# positions_found  = np.array([model.get(positions) for model in models_out])
-# fluxes_found     = np.array([model.get(fluxes)    for model in models_out])
-# zernikes_found   = np.array([model.get(zernikes)  for model in models_out])
-# flatfields_found = np.array([model.get(flatfield) for model in models_out])
-
-positions_found = np.load(paths.data / "optimise/positions_found.npy")
-fluxes_found = np.load(paths.data / "optimise/fluxes_found.npy")
-zernikes_found = np.load(paths.data / "optimise/zernikes_found.npy")
-# flatfields_found = np.load(paths.data / "optimise/flatfields_found.npy")
 
 # Get the residuals
 coeff_residuals = tel.get(zernikes) - zernikes_found
@@ -44,7 +32,6 @@ positions_residuals = tel.get(positions) - positions_found
 r_residuals_rads = np.hypot(positions_residuals[:, :, 0], positions_residuals[:, :, 1])
 r_residuals = r2a(r_residuals_rads)
 
-# Plot
 # OPDs
 true_opd = tel.ApplyBasisOPD.get_total_opd()
 
@@ -58,7 +45,6 @@ vmax = np.max(np.array([true_opd, found_opd]))
 
 # Coefficients
 true_coeff = tel.get(zernikes)
-# found_coeff = models_out[-1].get(zernikes)
 found_coeff = zernikes_found[-1]
 index = np.arange(len(true_coeff))+4
 

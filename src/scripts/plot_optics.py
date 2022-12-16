@@ -1,6 +1,6 @@
 import jax.numpy as np
 import paths
-import dill as p
+import pickle as p
 import dLux as dl
 import matplotlib.pyplot as plt
 from matplotlib.cm import get_cmap
@@ -13,6 +13,8 @@ plt.rcParams['figure.dpi'] = 120
 # Load model
 tel = p.load(open(paths.data / 'make_model_and_data/instrument.p', 'rb'))
 wavels = np.load(paths.data / 'make_model_and_data/wavelengths.npy')
+psf = np.load(paths.data / "make_model_and_data/plain_psf.npy")
+aberrated_psf = np.load(paths.data / "make_model_and_data/aberrated_psf.npy")
 
 # Pupil
 throughput = tel.CompoundAperture.get_aperture(npixels=tel.get('CreateWavefront.npixels'))
@@ -25,15 +27,6 @@ aberrated_pupil = pupil + opd
 
 # FF
 FF = tel.ApplyPixelResponse.pixel_response
-# psf_tel = tel.set(['detector'], [None])
-
-# # Get psfs
-# zernikes = 'ApplyBasisOPD.coefficients'
-# psf = psf_tel.set(zernikes, np.zeros(len(tel.get(zernikes)))).model(source=dl.PointSource(wavelengths=wavels))
-# aberrated_psf = psf_tel.model(source=dl.PointSource(wavelengths=wavels))
-
-psf = np.load(paths.data / "make_model_and_data/plain_psf.npy")
-aberrated_psf = np.load(paths.data / "make_model_and_data/aberrated_psf.npy")
 
 cmap = get_cmap("inferno").copy()
 cmap.set_bad('k',1.)

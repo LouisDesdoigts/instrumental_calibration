@@ -1,6 +1,6 @@
 import jax.numpy as np
 import paths
-import dill as p
+import pickle as p
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
 
@@ -10,9 +10,6 @@ plt.rcParams["image.origin"] = 'lower'
 plt.rcParams['figure.dpi'] = 120
 
 # Load model
-# tel = p.load(open(paths.data / 'instrument.p', 'rb'))
-# model = p.load(open(paths.data / 'model.p', 'rb'))
-# source = p.load(open(paths.data / 'source.p', 'rb'))
 data = np.load(paths.data / "make_model_and_data/data.npy")
 final_psfs = np.load(paths.data / "optimise/final_psfs.npy")
 initital_psfs = np.load(paths.data / "make_model_and_data/initial_psfs.npy")

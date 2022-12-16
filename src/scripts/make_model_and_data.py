@@ -4,7 +4,7 @@ import jax.random as jr
 import equinox as eqx
 import dLux as dl
 from dLux.utils import arcseconds_to_radians as a2r
-import dill as p
+import pickle as p
 import paths
 
 import os
@@ -13,7 +13,7 @@ try:
 except FileExistsError:
     pass
 
-'''Create Optics, Detector, Source & Instrument'''
+'''Construct Optics and Detector'''
 # Define wavelengths
 wavels = 1e-9 * np.linspace(545, 645, 3)
 np.save(paths.data / 'make_model_and_data/wavelengths.npy', wavels)
@@ -28,7 +28,6 @@ sampling_rate = 20
 det_pixsize = dl.utils.get_pixel_scale(sampling_rate, wavels.mean(), aperture)
 
 # Load mask
-# raw_mask = dl.utils.phase_to_opd(np.load("mask.npy"), wavels.mean())
 raw_mask = dl.utils.phase_to_opd(np.load(paths.data / "mask.npy"), wavels.mean())
 mask = dl.utils.scale_array(raw_mask, wf_npix, 0)
 
@@ -50,21 +49,20 @@ optics = dl.Optics(optical_layers)
 
 # Pixel response
 pix_response = 1 + 0.05*jr.normal(jr.PRNGKey(1), [det_npix, det_npix])
-# pix_response = np.ones([det_npix, det_npix])
 counts, bins = np.histogram(pix_response.flatten(), bins=50)
 np.save(paths.data / "make_model_and_data/pixel_response_counts.npy", counts)
 np.save(paths.data / "make_model_and_data/pixel_response_bins.npy", bins)
 
-# Detector Noise
-bg_mean = 10
-
 # Create detector layers
+bg_mean = 10
 detector_layers =[dl.ApplyPixelResponse(pix_response),
                   dl.AddConstant(bg_mean)]
 
 # Create Detector object
 detector = dl.Detector(detector_layers)
 
+
+"""Construct sources"""
 # Multiple sources to observe
 Nstars = 20
 flux = 1e8
@@ -74,23 +72,17 @@ true_fluxes = flux + (flux/10)*jr.normal(jr.PRNGKey(2), (Nstars,))
 r_max = 4.5
 true_positions = a2r(jr.uniform(jr.PRNGKey(4), (Nstars, 2), minval=-r_max, maxval=r_max))
 
-# Uniform
-# Nstars = 5**2
-# vals = a2r(np.linspace(-4, 4, int(Nstars**0.5)))
-# xs = np.tile(vals, int(Nstars**0.5))
-# ys = np.repeat(vals, int(Nstars**0.5))
-# true_positions = np.array([xs, ys]).T
-
 # Create Source object
 source = dl.MultiPointSource(true_positions, true_fluxes, wavelengths=wavels)
 
+"""Construct Instrument"""
 # Combine into instrument
 tel = dl.Instrument(optics=optics, sources=[source], detector=detector)
 
+"""Make some data with photon and detector noise"""
 # Observe!
 bg_val = tel.AddConstant.value
 psfs = tel.set(['detector'], [None]).model()
-# print(psfs.sum(0).mean())
 
 # Apply some noise to the PSF Background noise
 BG_noise = np.maximum(2.5*jr.normal(jr.PRNGKey(3), psfs.shape) + bg_val, 0.)
@@ -104,6 +96,7 @@ zernikes = 'ApplyBasisOPD.coefficients'
 flatfield = 'ApplyPixelResponse.pixel_response'
 parameters = [positions, fluxes, zernikes, flatfield]
 
+"""Perturb model for optimisation"""
 # Add small random values to the positions
 model = tel.add(positions, 1.*det_pixsize*jr.normal(jr.PRNGKey(6),  (Nstars, 2)))
 
@@ -116,6 +109,7 @@ model = model.set(zernikes, np.zeros(len(zern_basis)))
 # Set the flat fiel to uniform
 model = model.set(flatfield, np.ones((det_npix, det_npix)))
 
+"""Construct psfs and arrays for plotting"""
 # Initial PSFs
 initial_psfs = model.model()
 

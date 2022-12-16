@@ -1,7 +1,7 @@
 import jax.numpy as np
 from dLux.utils import radians_to_arcseconds as r2a
 import paths
-import dill as p
+import pickle as p
 import matplotlib.pyplot as plt
 
 plt.rcParams['image.cmap'] = 'inferno'
@@ -11,29 +11,15 @@ plt.rcParams['figure.dpi'] = 120
 
 # Load model
 tel = p.load(open(paths.data / 'make_model_and_data/instrument.p', 'rb'))
-# models_out = p.load(open(paths.data / 'optimise/models_out.p', 'rb'))
-# losses = np.load(paths.data / 'optimise/losses.npy')
-# data = np.load(paths.data / "make_model_and_data/data.npy")
-# psfs_out = np.load(paths.data / "optimise/final_psfs.npy")
-
-# Adding null line to attempt zenodo re-run
+positions_found = np.load(paths.data / "optimise/positions_found.npy")
+fluxes_found = np.load(paths.data / "optimise/fluxes_found.npy")
+zernikes_found = np.load(paths.data / "optimise/zernikes_found.npy")
 
 positions = 'MultiPointSource.position'
 fluxes = 'MultiPointSource.flux'
 zernikes = 'ApplyBasisOPD.coefficients'
 flatfield = 'ApplyPixelResponse.pixel_response'
 parameters = [positions, fluxes, zernikes, flatfield]
-
-# # Get parameters
-# positions_found  = np.array([model.get(positions) for model in models_out])
-# fluxes_found     = np.array([model.get(fluxes)    for model in models_out])
-# zernikes_found   = np.array([model.get(zernikes)  for model in models_out])
-# flatfields_found = np.array([model.get(flatfield) for model in models_out])
-
-positions_found = np.load(paths.data / "optimise/positions_found.npy")
-fluxes_found = np.load(paths.data / "optimise/fluxes_found.npy")
-zernikes_found = np.load(paths.data / "optimise/zernikes_found.npy")
-# flatfields_found = np.load(paths.data / "optimise/flatfields_found.npy")
 
 # Get the residuals
 coeff_residuals = tel.get(zernikes) - zernikes_found
@@ -77,13 +63,11 @@ ax2.set_xticks([])
 ax2.set_xlim(xlims)
 ax2.set_ylim(ylims)
 
-# ax1.scatter(true_positions, true_positions-final_positions)
 ax1.errorbar(true_positions, true_positions-final_positions, yerr=pos_err, fmt='o', capsize=5)
 ax1.axhline(0, c='k', alpha=0.5)
 ax1.set_xlabel('True')
 ax1.set_ylabel('Residual')
 ax1.set_ylim(1.1 * np.array(ax1.get_ylim()))
-
 
 # Fluxes
 true_fluxes = tel.get(fluxes) * 1e-6
@@ -118,4 +102,3 @@ ax3.set_ylim(1.1 * np.array(ax3.get_ylim()))
 
 plt.tight_layout()
 plt.savefig(paths.figures / "astro_params.pdf", dpi=300)
-

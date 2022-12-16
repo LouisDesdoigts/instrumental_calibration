@@ -1,10 +1,9 @@
 import jax.numpy as np
-import jax.random as jr
 from jax.scipy.stats import poisson
 import equinox as eqx
 import optax
 import paths
-import dill as p
+import pickle as p
 from tqdm import tqdm
 
 import os
@@ -17,12 +16,20 @@ except FileExistsError:
 model = p.load(open(paths.data / 'make_model_and_data/model.p', 'rb'))
 data = np.load(paths.data / "make_model_and_data/data.npy")
 
-positions = 'MultiPointSource.position'
-fluxes = 'MultiPointSource.flux'
-zernikes = 'ApplyBasisOPD.coefficients'
-flatfield = 'ApplyPixelResponse.pixel_response'
-parameters = [positions, fluxes, zernikes, flatfield]
+def time(fn):
+    """Time a function by evaluating it 10 times"""
+    import timeit
+    return timeit.timeit(lambda : fn(), number=10)
 
+# Profile
+@eqx.filter_jit
+def jitted_model(model):
+    return model.model()
+_ = jitted_model(model)
+print(time(lambda: jitted_model(model).block_until_ready())/10)
+
+
+"""Define optimisation schedules and hyper parameters"""
 # Optimisation hyper parameters
 b1 = .75 # Momentum -> Higer = more momentum
 # b2 = 0.5 # Acceleration -> Higer = more momentum
@@ -57,9 +64,16 @@ FF_sched = optax.piecewise_constant_schedule(init_value=ff_lr*1e-8,
                              boundaries_and_scales={ff_start : int(1e8)})
 FF_optimiser = optax.adam(FF_sched, b1=b1)
 
-
 # Combine the optimisers into a list
 optimisers = [pos_optimiser, flux_optimiser, coeff_optimiser, FF_optimiser]
+
+"""Define paths to parameters and define losses"""
+# Define optimisation parameters
+positions = 'MultiPointSource.position'
+fluxes = 'MultiPointSource.flux'
+zernikes = 'ApplyBasisOPD.coefficients'
+flatfield = 'ApplyPixelResponse.pixel_response'
+parameters = [positions, fluxes, zernikes, flatfield]
 
 # Generate out optax optimiser, and also get our args
 optim, opt_state, args = model.get_optimiser(parameters, optimisers, get_args=True)
@@ -76,8 +90,12 @@ def log_prior(model, ff_mean=1., ff_std=0.05):
 def loss_fn(model, data):
     return log_prior(model) + log_like(model, data)
 
+"""Compile and optimise"""
 # Compile
 loss, grads = loss_fn(model, data)
+
+# Profile
+print(time(lambda: loss_fn(model, data)[0].block_until_ready())/10)
 
 # Optimise
 losses, models_out = [], []
@@ -90,14 +108,25 @@ with tqdm(range(100), desc='Gradient Descent') as t:
         models_out.append(model)
         t.set_description("Log Loss: {:.3f}".format(np.log10(loss))) # update the progress bar
 
+"""Process for plotting and save parameters"""
 # Save model and losses
 np.save(paths.data / 'optimise/losses', np.array(losses))
-# p.dump(models_out, open(paths.data / "optimise/models_out.p", 'wb'))
 p.dump(models_out[-1], open(paths.data / "optimise/final_model.p", 'wb'))
 
 # Get final PSFs
 psfs_out = models_out[-1].model()
 np.save(paths.data / 'optimise/final_psfs', psfs_out)
+
+# # Get parameters
+positions_found  = np.array([model.get(positions) for model in models_out])
+fluxes_found     = np.array([model.get(fluxes)    for model in models_out])
+zernikes_found   = np.array([model.get(zernikes)  for model in models_out])
+flatfields_found = np.array([model.get(flatfield) for model in models_out])
+
+np.save(paths.data / "optimise/positions_found.npy", positions_found)
+np.save(paths.data / "optimise/fluxes_found.npy", fluxes_found)
+np.save(paths.data / "optimise/zernikes_found.npy", zernikes_found)
+np.save(paths.data / "optimise/flatfields_found.npy", flatfields_found)
 
 # Pre calc FF errors
 thresh = 1000
@@ -158,21 +187,3 @@ res = (pix_response - flatfields_found[-1])[thresh_indx].flatten()
 counts, bins = np.histogram(res.flatten(), bins=51)
 np.save(paths.data / "optimise/pixel_response_resid_counts.npy", counts)
 np.save(paths.data / "optimise/pixel_response_resid_bins.npy", bins)
-
-# Parameters out
-# positions = 'MultiPointSource.position'
-# fluxes = 'MultiPointSource.flux'
-# zernikes = 'ApplyBasisOPD.coefficients'
-# flatfield = 'ApplyPixelResponse.pixel_response'
-# parameters = [positions, fluxes, zernikes, flatfield]
-
-# # Get parameters
-positions_found  = np.array([model.get(positions) for model in models_out])
-fluxes_found     = np.array([model.get(fluxes)    for model in models_out])
-zernikes_found   = np.array([model.get(zernikes)  for model in models_out])
-flatfields_found = np.array([model.get(flatfield) for model in models_out])
-
-np.save(paths.data / "optimise/positions_found.npy", positions_found)
-np.save(paths.data / "optimise/fluxes_found.npy", fluxes_found)
-np.save(paths.data / "optimise/zernikes_found.npy", zernikes_found)
-np.save(paths.data / "optimise/flatfields_found.npy", flatfields_found)
