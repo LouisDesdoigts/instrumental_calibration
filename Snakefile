@@ -28,7 +28,7 @@ rule plot_FF:
         # rules.optimise.output,
         rules.run_full.output,
     output:
-        "src/tex/figures/FF.pdf"
+        "src/tex/figures/ff.pdf"
     conda:
         "environment.yml"
     script:
