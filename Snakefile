@@ -1,55 +1,21 @@
-rule make_model_and_data:
-    input:
-        "src/data/mask.npy"
+rule run_full:
     output:
-        directory("src/data/make_model_and_data/")
+        # directory("src/data/make_model_and_data"),
+        # directory("src/data/optimise"),
+        # directory("src/data/process"),
+        # directory("src/data/calc_errors")
+        directory("src/data"),
     conda:
         "environment.yml"
     cache:
         True
     script:
-        "src/scripts/make_model_and_data.py"
-
-rule optimise:
-    input:
-        rules.make_model_and_data.output,
-    output:
-        directory("src/data/optimise")
-    conda:
-        "environment.yml"
-    cache:
-        True
-    script:
-        "src/scripts/optimise.py"
-
-rule calc_errors:
-    input:
-        rules.make_model_and_data.output,
-        rules.optimise.output,
-    output:
-        directory("src/data/calc_errors")
-    conda:
-        "environment.yml"
-    cache:
-        True
-    script:
-        "src/scripts/calc_errors.py"
-
-rule divergence:
-    input:
-        "src/data/mask.npy"
-    output:
-        directory("src/data/divergence")
-    conda:
-        "environment.yml"
-    cache:
-        True
-    script:
-        "src/scripts/divergence.py"
+        "src/scripts/run_full.py"
 
 rule plot_optics:
     input:
-        rules.make_model_and_data.output,
+        # rules.make_model_and_data.output,
+        rules.run_full.output,
     output:
         "src/tex/figures/optics.pdf"
     conda:
@@ -59,7 +25,8 @@ rule plot_optics:
 
 rule plot_FF:
     input:
-        rules.optimise.output,
+        # rules.optimise.output,
+        rules.run_full.output,
     output:
         "src/tex/figures/FF.pdf"
     conda:
@@ -69,8 +36,9 @@ rule plot_FF:
 
 rule plot_astro_params:
     input:
-        rules.calc_errors.output,
-        rules.optimise.output,
+        # rules.calc_errors.output,
+        # rules.optimise.output,
+        rules.run_full.output,
     output:
         "src/tex/figures/astro_params.pdf"
     conda:
@@ -80,8 +48,9 @@ rule plot_astro_params:
 
 rule plot_aberrations:
     input:
-        rules.calc_errors.output,
-        rules.optimise.output,
+        # rules.calc_errors.output,
+        # rules.optimise.output,
+        rules.run_full.output,
     output:
         "src/tex/figures/aberrations.pdf"
     conda:
@@ -91,8 +60,9 @@ rule plot_aberrations:
 
 rule plot_data_resid:
     input:
-        rules.make_model_and_data.output,
-        rules.optimise.output,
+        # rules.make_model_and_data.output,
+        # rules.optimise.output,
+        rules.run_full.output,
     output:
         "src/tex/figures/data_resid.pdf"
     conda:
@@ -100,34 +70,12 @@ rule plot_data_resid:
     script:
         "src/scripts/plot_data_resid.py"
 
-rule plot_divergence:
+rule plot_noise:
     input:
-        rules.divergence.output,
+        rules.run_full.output,
     output:
-        "src/tex/figures/divergence.pdf"
+        "src/tex/figures/noise.pdf"
     conda:
         "environment.yml"
     script:
-        "src/scripts/plot_divergence.py"
-
-rule compute_rms_in:
-    input:
-        rules.calc_errors.output,
-        rules.optimise.output,
-    output:
-        "src/tex/output/rms_opd_in.txt"
-    conda:
-        "environment.yml"
-    script:
-        "src/scripts/plot_aberrations.py"
-
-rule compute_rms_resid:
-    input:
-        rules.calc_errors.output,
-        rules.optimise.output,
-    output:
-        "src/tex/output/rms_opd_resid.txt"
-    conda:
-        "environment.yml"
-    script:
-        "src/scripts/plot_aberrations.py"
+        "src/scripts/plot_noise.py"
