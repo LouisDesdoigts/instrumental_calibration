@@ -56,12 +56,23 @@ for i in range(nhists):
     threshes.append(data_sort[size*i])
 threshes.append(data_sort[-1] + 1)
 
+threshes = np.linspace(0, data.max(), nhists+1).astype(int)
+
+
 data_flat = data.flatten()
 indexes = []
 for i in range(len(threshes)-1):
     low = np.where(data_flat >= threshes[i])[0]
     high = np.where(data_flat < threshes[i+1])[0]
     indexes.append(np.intersect1d(low, high))
+
+bin_size = []
+for i in range(len(indexes)):
+    # print(len(indexes[i]))
+    # print(len(indexes[i])/2/5)
+    bin_size.append(int(np.minimum(np.ceil(len(indexes[i])/25), 50)))
+print(bin_size)
+
 
 import matplotlib
 cmap = matplotlib.cm.get_cmap('inferno')
@@ -72,12 +83,15 @@ prf_flat = (pix_response - flatfields_found[-1]).flatten()
 for i in range(len(indexes)):
     lab = "{} - {}".format(int(threshes[i]), int(threshes[i+1]))
 
-    # mean = (threshes[i] + threshes[i+1])/2
-    mean = threshes[i+1]
+    mean = (threshes[i] + threshes[i+1])/2
+    # mean = threshes[i+1]
+    # mean = threshes[i]
     mean_norm = (mean - vmin)/(vmax - vmin)
     cols = cmap(mean_norm)[:3]
 
-    plt.hist(prf_flat[indexes[i]], bins=50, alpha=0.85, label=lab, color=cols)
+    plt.hist(prf_flat[indexes[i]], bins=bin_size[i], alpha=0.5, label=lab, color=cols, density=True)
+    # plt.hist(prf_flat[indexes[i]], bins=50, alpha=0.85, label=lab, color=cols, density=True)
+    # plt.hist(prf_flat[indexes[i]], bins=50, alpha=0.85, density=True)
 # cbar = plt.colorbar()
 plt.legend()
 plt.xlim(-0.2, 0.2)

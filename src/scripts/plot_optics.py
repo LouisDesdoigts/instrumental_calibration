@@ -4,31 +4,39 @@ import pickle as p
 import dLux as dl
 import matplotlib.pyplot as plt
 from matplotlib.cm import get_cmap
+from zodiax.experimental.serialisation import serialise, deserialise
+from observation import MultiImage
 
 plt.rcParams['image.cmap'] = 'inferno'
 plt.rcParams["font.family"] = "serif"
 plt.rcParams["image.origin"] = 'lower'
 plt.rcParams['figure.dpi'] = 120
 
+
+flux = 1e8
+PRFdev = 1e-1
+sub_dir = f"flux_{flux:.0e}_PRFdev_{PRFdev:.0e}"
+
 # Load model
-tel = p.load(open(paths.data / 'make_model_and_data/instrument.p', 'rb'))
-wavels = np.load(paths.data / 'make_model_and_data/wavelengths.npy')
-psf = np.load(paths.data / "make_model_and_data/plain_psf.npy")
-aberrated_psf = np.load(paths.data / "make_model_and_data/aberrated_psf.npy")
+tel = deserialise(paths.data / f'make_model_and_data/{sub_dir}/instrument.zdx')
+unit_psf = np.load(paths.data / f"process/{sub_dir}/unit_psf.npy")
+aberrated_psf = np.load(paths.data / f"process/{sub_dir}/aberrated_psf.npy")
+counts = np.load(paths.data / f"process/{sub_dir}/PRF_counts.npy")
+bins = np.load(paths.data / f"process/{sub_dir}/PRF_bins.npy")
 
 # Pupil
-throughput = tel.CompoundAperture.get_aperture(npixels=tel.get('CreateWavefront.npixels'))
+throughput = tel.CircularAperture.aperture
 mask = tel.AddOPD.opd
 pupil = mask.at[np.where(throughput==0.)].set(np.nan)
 
 # Aberrations
-opd = tel.ApplyBasisOPD.get_total_opd()
+opd = tel.Aberrations.get_opd()
 aberrated_pupil = pupil + opd
 
 # FF
-FF = tel.ApplyPixelResponse.pixel_response
-
-cmap = get_cmap("inferno").copy()
+FF = tel.PRF.pixel_response
+from matplotlib import colormaps as cm
+cmap = cm["inferno"]
 cmap.set_bad('k',1.)
 
 plt.figure(figsize=(15, 8))
@@ -44,7 +52,7 @@ cbar.set_label("OPD (nm)")
 
 plt.subplot(2, 3, 4)
 plt.title("PSF")
-plt.imshow(psf)
+plt.imshow(unit_psf)
 plt.xlabel("Pixels")
 plt.ylabel("Pixels")
 cbar = plt.colorbar()
@@ -66,8 +74,6 @@ plt.ylabel("Pixels")
 cbar = plt.colorbar()
 cbar.set_label("Probability")
 
-counts = np.load(paths.data / "make_model_and_data/pixel_response_counts.npy")
-bins = np.load(paths.data / "make_model_and_data/pixel_response_bins.npy")
 plt.subplot(2, 3, 3)
 plt.title("Pixel Response Distribution")
 plt.hist(bins[:-1], bins, weights=counts)
@@ -93,4 +99,5 @@ axins.set_yticklabels([])
 ax.indicate_inset_zoom(axins, edgecolor="black")
 
 plt.tight_layout()
+# plt.savefig(paths.figures / f"{sub_dir}/optics.pdf", dpi=300)
 plt.savefig(paths.figures / "optics.pdf", dpi=300)

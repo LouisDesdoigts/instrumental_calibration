@@ -4,52 +4,40 @@ import paths
 import pickle as p
 import matplotlib.pyplot as plt
 from mpl_toolkits.axes_grid1 import make_axes_locatable
+from zodiax.experimental.serialisation import serialise, deserialise
+from observation import MultiImage
 
 plt.rcParams['image.cmap'] = 'inferno'
 plt.rcParams["font.family"] = "serif"
 plt.rcParams["image.origin"] = 'lower'
 plt.rcParams['figure.dpi'] = 120
 
+flux = 1e8
+PRFdev = 1e-1
+sub_dir = f"flux_{flux:.0e}_PRFdev_{PRFdev:.0e}"
 
 # Load model
-tel = p.load(open(paths.data / 'make_model_and_data/instrument.p', 'rb'))
-positions_found = np.load(paths.data / "optimise/positions_found.npy")
-fluxes_found = np.load(paths.data / "optimise/fluxes_found.npy")
-zernikes_found = np.load(paths.data / "optimise/zernikes_found.npy")
-
-positions = 'MultiPointSource.position'
-fluxes = 'MultiPointSource.flux'
-zernikes = 'ApplyBasisOPD.coefficients'
-flatfield = 'ApplyPixelResponse.pixel_response'
-parameters = [positions, fluxes, zernikes, flatfield]
-
-# Get the residuals
-coeff_residuals = tel.get(zernikes) - zernikes_found
-flux_residuals = tel.get(fluxes) - fluxes_found
-
-scaler = 1e3
-positions_residuals = tel.get(positions) - positions_found
-r_residuals_rads = np.hypot(positions_residuals[:, :, 0], positions_residuals[:, :, 1])
-r_residuals = r2a(r_residuals_rads)
+tel = deserialise(paths.data / f'make_model_and_data/{sub_dir}/instrument.zdx')
+model = deserialise(paths.data / f'optimise/{sub_dir}/final_model.zdx')
 
 # OPDs
-true_opd = tel.ApplyBasisOPD.get_total_opd()
-
-opds_found = np.array([tel.set(zernikes, z).ApplyBasisOPD.get_total_opd() for z in zernikes_found])
-found_opd = opds_found[-1]
-opd_residuls = true_opd - opds_found
+true_opd = tel.Aberrations.get_opd()
+found_opd = model.Aberrations.get_opd()
+opd_residuls = true_opd - found_opd
 opd_rmse_nm = 1e9*np.mean(opd_residuls**2, axis=(-1,-2))**0.5
 
 vmin = np.min(np.array([true_opd, found_opd]))
 vmax = np.max(np.array([true_opd, found_opd]))
 
 # Coefficients
+zernikes   = 'Aberrations.coefficients'
 true_coeff = tel.get(zernikes)
-found_coeff = zernikes_found[-1]
+found_coeff = model.get(zernikes)
 index = np.arange(len(true_coeff))+4
 
+# Errors
 Nzern = len(true_coeff)
-errs = np.diag(np.load(paths.data / 'calc_errors/cov_mat.npy'))**0.5
+errs = np.abs(np.diag(np.load(paths.data / f'calc_errors/{sub_dir}/cov_mat.npy')))**0.5
 zerr = errs[-Nzern:]
 
 plt.figure(figsize=(15, 4))
@@ -79,8 +67,7 @@ ax.set_ylabel("Residuals")
 ax.set_xlabel("True")
 ax.set_ylim(1.1 * np.array(ax.get_ylim()))
 
-throughput = tel.CompoundAperture.get_aperture(npixels=tel.get('CreateWavefront.npixels'))
-mask = tel.AddOPD.opd
+throughput = tel.CircularAperture.aperture
 true_opd = true_opd.at[np.where(throughput==0.)].set(np.nan)
 found_opd = found_opd.at[np.where(throughput==0.)].set(np.nan)
 
@@ -92,15 +79,9 @@ true_rms = (true_vales**2).mean()**0.5
 found_rms = (found_vales**2).mean()**0.5
 residual_rms = (residual_vales**2).mean()**0.5
 
-# Save values
-with open(paths.output / "rms_opd_in.txt", 'w') as f:
-    f.write("{:.3}".format(true_rms*1e9))
-
-with open(paths.output / "rms_opd_resid.txt", 'w') as f:
-    f.write("{:.3}".format(residual_rms*1e9))
-
-from matplotlib.cm import get_cmap
-cmap = get_cmap("inferno").copy()
+# from matplotlib.cm import get_cmap
+from matplotlib import colormaps as cm
+cmap = cm["inferno"]
 cmap.set_bad('k',1.)
 
 plt.subplot(1, 3, 2)
@@ -121,4 +102,3 @@ cbar.set_label("OPD (nm)")
 
 plt.tight_layout()
 plt.savefig(paths.figures / "aberrations.pdf", dpi=300)
-
