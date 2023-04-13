@@ -74,7 +74,7 @@ rule plot_noise:
     input:
         rules.run_full.output,
     output:
-        "src/tex/figures/noise.pdf"
+        "src/tex/figures/noise_performance.pdf"
     conda:
         "environment.yml"
     script:
