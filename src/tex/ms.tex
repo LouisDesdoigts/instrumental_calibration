@@ -353,10 +353,8 @@ In order to recover these input aberrations, we perform gradient descent using A
 
 The optimisation is performed for a total of 150 epochs, with each value-and-gradient calculation taking $\sim$ 2.75 seconds to evaluate on an Apple~M1~Max CPU, for a total optimisation time of $\sim$ 6.5 minutes. Faster convergence can be achieved by careful tuning of the optimisation hyper-parameters such as learning rate and momentum, however we take a slower approach in this work in order to get good performance across a range of fluxes and PRFs which is analysed in Section~\ref{sec:noise}.
 
-This optimisation strategy performs well, with Figure~\ref{fig:data_residual} showing the final residual image with no visually discernable structure. A further analysis of parameter recovery over a range of fluxes and PRFs is shown in Section~\ref{sec:noise}. Correlations and residual plots of the positions, fluxes and aberrations after the optimisation are shown in Figure~\ref{fig:astro_params} and Figure~\ref{fig:aberrations}. Figure~\ref{fig:aberrations} shows the recovery of the optical aberrations, with a final residual aberration of 
-% \textcolor{red}{showyourwork variable}
-% \variable{output/rms_opd_resid.txt} 
-0.0499\,nm RMS. \textcolor{red}{update with final values}
+This optimisation strategy performs well, with Figure~\ref{fig:data_residual} showing the final residual image with no visually discernable structure. A further analysis of parameter recovery over a range of fluxes and PRFs is shown in Section~\ref{sec:noise}. Correlations and residual plots of the positions, fluxes and aberrations after the optimisation are shown in Figure~\ref{fig:astro_params} and Figure~\ref{fig:aberrations}. Figure~\ref{fig:aberrations} shows the recovery of the optical aberrations, with a final residual aberration of 0.0282\,nm RMS.
+
 Finally, Figure~\ref{fig:flat_field} shows a correlation plot of the true and recovered sensitivity values and the corresponding residual histogram. The points of the correlation plot are colour-coded with the total counts for each pixel, showing as expected that pixels with higher photon counts having a better recovery of the \ac{prf} since these pixels have a greater \ac{snr}. Overall the parameters are very well recovered down to the noise level.
 
 \begin{figure*}
