@@ -17,8 +17,8 @@ PRFdev = 1e-1
 sub_dir = f"flux_{flux:.0e}_PRFdev_{PRFdev:.0e}"
 
 # Load model
-tel = deserialise(paths.data / f'make_model_and_data/{sub_dir}/instrument.zdx')
-model = deserialise(paths.data / f'optimise/{sub_dir}/final_model.zdx')
+tel = deserialise(paths.data / f'{sub_dir}/instrument.zdx')
+model = deserialise(paths.data / f'{sub_dir}/final_model.zdx')
 
 # OPDs
 true_opd = tel.Aberrations.get_opd()
@@ -37,7 +37,7 @@ index = np.arange(len(true_coeff))+4
 
 # Errors
 Nzern = len(true_coeff)
-errs = np.abs(np.diag(np.load(paths.data / f'calc_errors/{sub_dir}/cov_mat.npy')))**0.5
+errs = np.abs(np.diag(np.load(paths.data / f'{sub_dir}/cov_mat.npy')))**0.5
 zerr = errs[-Nzern:]
 
 plt.figure(figsize=(15, 4))

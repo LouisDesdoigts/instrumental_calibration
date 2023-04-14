@@ -18,20 +18,20 @@ PRFdev = 1e-1
 sub_dir = f"flux_{flux:.0e}_PRFdev_{PRFdev:.0e}"
 
 # Load model
-tel = deserialise(paths.data / f'make_model_and_data/{sub_dir}/instrument.zdx')
-unit_psf = np.load(paths.data / f"process/{sub_dir}/unit_psf.npy")
-aberrated_psf = np.load(paths.data / f"process/{sub_dir}/aberrated_psf.npy")
-counts = np.load(paths.data / f"process/{sub_dir}/PRF_counts.npy")
-bins = np.load(paths.data / f"process/{sub_dir}/PRF_bins.npy")
+tel = deserialise(paths.data / f'{sub_dir}/instrument.zdx')
 
-# Pupil
-throughput = tel.CircularAperture.aperture
-mask = tel.AddOPD.opd
-pupil = mask.at[np.where(throughput==0.)].set(np.nan)
+### PSFs ###
+zernikes = 'Aberrations.coefficients'
+wavels = tel.get('Source.spectrum.wavelengths')
+aberrated_psf = tel.optics.propagate(wavels)
+unaberrated_optics = tel.optics.multiply(zernikes, 0.)
+unit_psf = unaberrated_optics.propagate(wavels)
 
-# Aberrations
-opd = tel.Aberrations.get_opd()
-aberrated_pupil = pupil + opd
+# Diffractive Pupil
+support = tel.CircularAperture.aperture
+support_mask = np.where(support==0.)
+pupil = tel.AddOPD.opd.at[support_mask].set(np.nan)
+aberrated_pupil = pupil + tel.Aberrations.get_opd()
 
 # FF
 FF = tel.PRF.pixel_response
@@ -76,7 +76,7 @@ cbar.set_label("Probability")
 
 plt.subplot(2, 3, 3)
 plt.title("Pixel Response Distribution")
-plt.hist(bins[:-1], bins, weights=counts)
+plt.hist(FF.flatten(), bins=51)
 plt.ylabel("Counts")
 plt.xlabel("Relative Sensitivity")
 
@@ -99,5 +99,4 @@ axins.set_yticklabels([])
 ax.indicate_inset_zoom(axins, edgecolor="black")
 
 plt.tight_layout()
-# plt.savefig(paths.figures / f"{sub_dir}/optics.pdf", dpi=300)
 plt.savefig(paths.figures / "optics.pdf", dpi=300)

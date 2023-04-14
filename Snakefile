@@ -1,9 +1,5 @@
 rule run_full:
     output:
-        # directory("src/data/make_model_and_data"),
-        # directory("src/data/optimise"),
-        # directory("src/data/process"),
-        # directory("src/data/calc_errors")
         directory("src/data"),
     conda:
         "environment.yml"
@@ -14,7 +10,6 @@ rule run_full:
 
 rule plot_optics:
     input:
-        # rules.make_model_and_data.output,
         rules.run_full.output,
     output:
         "src/tex/figures/optics.pdf"
@@ -25,7 +20,6 @@ rule plot_optics:
 
 rule plot_FF:
     input:
-        # rules.optimise.output,
         rules.run_full.output,
     output:
         "src/tex/figures/ff.pdf"
@@ -36,8 +30,6 @@ rule plot_FF:
 
 rule plot_astro_params:
     input:
-        # rules.calc_errors.output,
-        # rules.optimise.output,
         rules.run_full.output,
     output:
         "src/tex/figures/astro_params.pdf"
@@ -48,8 +40,6 @@ rule plot_astro_params:
 
 rule plot_aberrations:
     input:
-        # rules.calc_errors.output,
-        # rules.optimise.output,
         rules.run_full.output,
     output:
         "src/tex/figures/aberrations.pdf"
@@ -60,8 +50,6 @@ rule plot_aberrations:
 
 rule plot_data_resid:
     input:
-        # rules.make_model_and_data.output,
-        # rules.optimise.output,
         rules.run_full.output,
     output:
         "src/tex/figures/data_resid.pdf"

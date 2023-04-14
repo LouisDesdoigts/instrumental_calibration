@@ -24,9 +24,20 @@ for i in range(len(fluxes)):
         PRFdev = PRFdevs[j]
         sub_dir = f"flux_{fluxes[i]:.0e}_PRFdev_{PRFdevs[j]:.0e}"
 
-        data = np.load(paths.data / f"make_model_and_data/{sub_dir}/data.npy")
-        tel = deserialise(paths.data / f'make_model_and_data/{sub_dir}/instrument.zdx')
-        model = deserialise(paths.data / f'optimise/{sub_dir}/final_model.zdx')
+        data = np.load(paths.data / f"{sub_dir}/data.npy")
+        tel = deserialise(paths.data / f'{sub_dir}/instrument.zdx')
+        model = deserialise(paths.data / f'{sub_dir}/final_model.zdx')
+
+
+        ### Expected Errors ###
+        mean_wl = tel.Source.spectrum.wavelengths.mean()
+        lamd = mean_wl/tel.CreateWavefront.diameter
+        true_fluxes = tel.Source.flux
+        expected_flux_error = np.mean(np.sqrt(true_fluxes)) # Photons
+        expected_postional_error = 1/np.pi * np.sqrt(1/true_fluxes) * lamd # Radians
+        expected_postional_error = np.tile(expected_postional_error, (2,1)).flatten()
+        expected_zern_err = 1/(np.sqrt(true_fluxes).mean()) # Radians
+
 
 
         # PRF Correlations
